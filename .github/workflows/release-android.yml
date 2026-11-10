@@ -1,0 +1,160 @@
+name: Android APK release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing published release tag (vX.Y.Z)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# Serialize releases: EAS manages a shared, increasing Android versionCode.
+concurrency:
+  group: android-apk-release
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      commit: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Validate release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Expected a stable vX.Y.Z tag'; exit 1; }
+          gh release view "$TAG" --json isDraft,isPrerelease,assets > "$RUNNER_TEMP/release.json"
+          jq -e '(.isDraft == false) and (.isPrerelease == false) and ([.assets[].name | select(endswith(".apk"))] | length == 0)' "$RUNNER_TEMP/release.json"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ steps.release.outputs.tag }}
+          persist-credentials: false
+      - name: Record exact source commit
+        id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Match tag and app version
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const { expo } = JSON.parse(readFileSync('app.json', 'utf8'));
+          if (`v${expo.version}` !== process.env.TAG) {
+            throw new Error('Release tag must match expo.version in app.json');
+          }
+          if (!expo.extra?.eas?.projectId) {
+            throw new Error('Link the maintained Expo project with eas init before releasing');
+          }
+          if (expo.android?.package !== 'co.usecroma.paradero') {
+            throw new Error('Unexpected Android package');
+          }
+          NODE
+      - run: npm ci
+      - run: npm run check
+
+  build:
+    needs: check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    environment: android-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools build-tools;36.0.0'
+      - run: npm ci
+      - name: Build signed release APK on this runner
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPECTED_CERT: ${{ vars.ANDROID_CERT_SHA256 }}
+          CI: '1'
+        run: |
+          set -euo pipefail
+          test -n "$EXPO_TOKEN" || { echo 'Configure EXPO_TOKEN in android-release'; exit 1; }
+          expected=$(printf '%s' "$EXPECTED_CERT" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          [[ "$expected" =~ ^[0-9a-f]{64}$ ]] || { echo 'Configure ANDROID_CERT_SHA256 in android-release'; exit 1; }
+          mkdir -p dist
+          npx --yes eas-cli@27.7.1 build --platform android --profile github-release \
+            --local --non-interactive --output "$PWD/dist/paradero.apk"
+      - name: Verify APK identity and signing certificate
+        env:
+          TAG: ${{ needs.check.outputs.tag }}
+          EXPECTED_CERT: ${{ vars.ANDROID_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          expected=$(printf '%s' "$EXPECTED_CERT" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          [[ "$expected" =~ ^[0-9a-f]{64}$ ]] || { echo 'Configure ANDROID_CERT_SHA256 in android-release'; exit 1; }
+          "$tools/apksigner" verify --verbose --print-certs dist/paradero.apk > "$RUNNER_TEMP/apk-signature.txt"
+          actual=$(awk '/^Signer #1 certificate SHA-256 digest:/ {print $NF}' "$RUNNER_TEMP/apk-signature.txt")
+          test "$actual" = "$expected" || { echo 'Unexpected APK signing certificate'; exit 1; }
+          "$tools/aapt" dump badging dist/paradero.apk > "$RUNNER_TEMP/apk-badging.txt"
+          grep -F "package: name='co.usecroma.paradero'" "$RUNNER_TEMP/apk-badging.txt"
+          grep -F "versionName='${TAG#v}'" "$RUNNER_TEMP/apk-badging.txt"
+          if grep -q 'application-debuggable' "$RUNNER_TEMP/apk-badging.txt"; then
+            echo 'Refusing to publish a debuggable APK'; exit 1
+          fi
+          cd dist
+          mv paradero.apk "paradero-$TAG.apk"
+          sha256sum "paradero-$TAG.apk" > "paradero-$TAG.apk.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: dist/paradero-*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [check, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-release
+          path: dist
+      - name: Attach APK and checksum without replacing existing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.check.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" --json isDraft,isPrerelease | jq -e '(.isDraft == false) and (.isPrerelease == false)'
+          cd dist
+          sha256sum --check "paradero-$TAG.apk.sha256"
+          gh release upload "$TAG" "paradero-$TAG.apk" "paradero-$TAG.apk.sha256"

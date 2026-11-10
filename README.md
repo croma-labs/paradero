@@ -52,6 +52,19 @@ Paradero está construida para cumplir los nueve indicadores del [Digital Public
 | 8. Estándares | GTFS, GTFS-Realtime, OpenStreetMap, WCAG 2.2 AA (contraste comprobado en cada cambio) y pautas de accesibilidad de iOS y Android |
 | 9. No hacer daño | Sin anuncios, sin rastreo, sin datos personales y sin presentar horarios como si fueran en vivo |
 
+## Android: APK y Obtainium
+
+El flujo de [releases Android](docs/ANDROID_RELEASES.md) permite adjuntar un APK
+firmado a cada nueva release estable, una vez que los mantenedores configuren
+el proyecto Expo y su firma. Los APK disponibles aparecerán en
+[GitHub Releases](https://github.com/croma-labs/paradero/releases).
+
+Para recibir actualizaciones con [Obtainium](https://obtainium.imranr.dev/),
+usa **Agregar aplicación** y pega `https://github.com/croma-labs/paradero`.
+Se necesita al menos una release con APK; las releases que solo incluyen código
+fuente no se pueden instalar. La [guía](docs/ANDROID_RELEASES.md) explica la
+configuración inicial y cómo conservar la firma entre versiones.
+
 ## Correrla
 
 ```bash
