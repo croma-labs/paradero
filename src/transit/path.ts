@@ -36,7 +36,8 @@ export function project(path: MeasuredPath, at: LngLat): { along: number; offset
     const length2 = (bx - ax) ** 2 + (by - ay) ** 2;
     const t = length2 === 0 ? 0 : Math.min(1, Math.max(0, -(ax * (bx - ax) + ay * (by - ay)) / length2));
     const offset = Math.hypot(ax + t * (bx - ax), ay + t * (by - ay));
-    if (!best || offset < best.offset) best = { along: path.along[i]! + t * (path.along[i + 1]! - path.along[i]!), offset };
+    // On a tie the later point wins: a loop that starts and ends at a stop reaches it at the end, where buses arrive.
+    if (!best || offset <= best.offset) best = { along: path.along[i]! + t * (path.along[i + 1]! - path.along[i]!), offset };
   }
   return best;
 }

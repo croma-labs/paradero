@@ -16,7 +16,8 @@ export class ApiError extends Error {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: (count, error) => !(error instanceof ApiError && error.status < 500) && count < 2,
+      // A 504 is Croma taking too long. Asking again at once only adds paid calls to a struggling source; the next refresh tries anyway.
+      retry: (count, error) => !(error instanceof ApiError && (error.status < 500 || error.status === 504)) && count < 2,
       staleTime: 10_000,
     },
   },
