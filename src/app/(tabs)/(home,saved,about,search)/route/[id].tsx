@@ -1,12 +1,13 @@
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { PressableScale } from "pressto";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { toast } from "sonner-native";
 
 import { AlertCard } from "@/components/alert-card";
 import { Button } from "@/components/button";
+import { Chip } from "@/components/chip";
 import { DetailScreen } from "@/components/detail-screen";
 import { FeedStatus } from "@/components/feed-status";
 import { BusGlyph } from "@/components/glyphs";
@@ -20,10 +21,14 @@ import type { MapHandle } from "@/components/transit-map.types";
 import { useT } from "@/i18n";
 import { announce, useAccessibility, useLargeText } from "@/lib/accessibility";
 import { useRoute } from "@/lib/api";
-import { BOGOTA } from "@/lib/location";
+import { BOGOTA, useLocation } from "@/lib/location";
 import { toggleRoute, useIsSaved } from "@/lib/saved";
 import { usePalette } from "@/theme/colors";
 import { layout, radius, size, space } from "@/theme/tokens";
+import { metresBetween } from "@/transit/path";
+
+/** A stop this close is worth opening the route on, instead of the whole path. */
+const NEAR_M = 1_000;
 
 export default function RouteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,11 +41,45 @@ export default function RouteScreen() {
   const saved = useIsSaved("route", id);
 
   const path = data?.path;
+  const { state: place, refresh } = useLocation();
+  const lat = place.status === "ready" ? place.lat : null;
+  const lon = place.status === "ready" ? place.lon : null;
+  const nearest = (() => {
+    if (lat == null || lon == null || !data?.stops.length) return null;
+    let best: { id: string; name: string; lat: number; lon: number; m: number } | null = null;
+    for (const s of data.stops) {
+      const m = metresBetween([lon, lat], [s.lon, s.lat]);
+      if (m <= NEAR_M && (!best || m < best.m)) best = { ...s, m };
+    }
+    return best;
+  })();
+  const [nearMe, setNearMe] = useState(true);
+  const targetLat = nearMe ? (nearest?.lat ?? null) : null;
+  const targetLon = nearMe ? (nearest?.lon ?? null) : null;
+  const refreshed = useRef(false);
+
   useEffect(() => {
-    if (!path || path.length < 2) return;
-    const timer = setTimeout(() => map.current?.fit(path), reduceMotion ? 0 : 350);
+    if (refreshed.current) return;
+    refreshed.current = true;
+    refresh();
+  }, [refresh]);
+
+  const goNear = () => {
+    refresh();
+    setNearMe(true);
+    if (nearest) map.current?.flyTo(nearest.lat, nearest.lon, 15.5);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (targetLat != null && targetLon != null) {
+        map.current?.flyTo(targetLat, targetLon, 15.5);
+        return;
+      }
+      if (path && path.length >= 2) map.current?.fit(path);
+    }, reduceMotion ? 0 : 350);
     return () => clearTimeout(timer);
-  }, [path, reduceMotion]);
+  }, [path, reduceMotion, targetLat, targetLon]);
 
   const save = () => {
     if (!data) return;
@@ -90,6 +129,13 @@ export default function RouteScreen() {
               </Text>
             </View>
 
+            {nearest && (
+              <View style={styles.modes}>
+                <Chip label={t.route.nearMe} selected={nearMe} radio onPress={goNear} />
+                <Chip label={t.route.fullRoute} selected={!nearMe} radio onPress={() => setNearMe(false)} />
+              </View>
+            )}
+
             <View style={large ? styles.factsStacked : styles.facts}>
               <Fact label={t.route.first} value={data.route.firstDeparture ?? "–"} />
               <Fact label={t.route.last} value={data.route.lastDeparture ?? "–"} />
@@ -113,11 +159,12 @@ export default function RouteScreen() {
               </Text>
               {data.stops.map((s, i) => {
                 const edge = i === 0 || i === data.stops.length - 1;
+                const isNear = nearMe && nearest?.id === s.id;
                 return (
                   <PressableScale
                     key={`${s.id}-${i}`}
                     accessibilityRole="button"
-                    accessibilityLabel={t.route.stopLabel(i + 1, s.name)}
+                    accessibilityLabel={`${t.route.stopLabel(i + 1, s.name)}${isNear ? `, ${t.route.yourStop}` : ""}`}
                     onPress={() => router.push({ pathname: "/stop/[id]", params: { id: s.id } })}
                     style={styles.stopRow}>
                     <View style={styles.rail}>
@@ -128,6 +175,11 @@ export default function RouteScreen() {
                     <Text variant={edge ? "headline" : "callout"} weight={edge ? 600 : 400} numberOfLines={large ? undefined : 1} style={{ flex: 1 }}>
                       {s.name}
                     </Text>
+                    {isNear && (
+                      <Text variant="caption" tone="muted">
+                        {t.route.yourStop}
+                      </Text>
+                    )}
                   </PressableScale>
                 );
               })}
@@ -168,6 +220,7 @@ const styles = StyleSheet.create({
   fact: { flex: 1, padding: space[3], borderRadius: radius.lg, borderCurve: "continuous", gap: space[1], borderWidth: StyleSheet.hairlineWidth },
   note: { flexDirection: "row", alignItems: "center", gap: space[3], padding: space[4], borderRadius: radius.lg, borderCurve: "continuous" },
   heading: { marginBottom: space[2] },
+  modes: { flexDirection: "row", flexWrap: "wrap", gap: space[2] },
   stopRow: { flexDirection: "row", alignItems: "center", gap: space[3], minHeight: size.control.md },
   rail: { width: size.icon.md, alignItems: "center", alignSelf: "stretch" },
   line: { width: size.line.rule, flex: 1 },
