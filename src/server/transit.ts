@@ -62,10 +62,12 @@ export function search(query: string): Promise<SearchResult> {
       croma("stops-search", { query: q, per_page: 15 }, s.stopsSearch),
       croma("routes-search", { query: q, per_page: 15 }, s.routesSearch),
     ]);
+    const trips = new Map(routes.routes.map((r) => [r.route_id, r.trips_per_week]));
     return {
       stops: stops.stops.map(toStop),
       routes: dedupeRoutes(
         routes.routes.map((r) => describeRoute({ id: r.route_id, shortName: r.short_name ?? null, longName: r.long_name ?? null, system: r.system ?? null })),
+        (r) => trips.get(r.id),
       ),
     };
   });
