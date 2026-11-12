@@ -19,6 +19,10 @@ export type CardResponses = {
 
 declare class TullaveModule extends NativeModule<{ onShortcut: (event: { type: string }) => void }> {
   isAvailable(): boolean;
+  /** Whether the phone has NFC and whether it is on. Absent from builds before the NFC settings link. */
+  status?(): "ready" | "off" | "missing";
+  /** Android only: opens the NFC settings so the rider can turn it on. */
+  openSettings?(): void;
   /** The Home Screen quick action that opened the app, once. */
   takeShortcut(): string | null;
   /** Android only: adds the long-press shortcut on the app icon. iOS declares it in Info.plist. */

@@ -6,7 +6,7 @@ import Tullave from "../../modules/tullave";
 import { t, tag } from "@/i18n";
 import { CardError, parseCard, type Card } from "@/transit/tullave";
 
-export type ReadFailure = "unsupported" | "cancelled" | "timeout" | "lost" | "not_tullave" | "failed";
+export type ReadFailure = "unsupported" | "off" | "cancelled" | "timeout" | "lost" | "not_tullave" | "failed";
 
 export class ReadError extends Error {
   constructor(readonly code: ReadFailure) {
@@ -14,22 +14,33 @@ export class ReadError extends Error {
   }
 }
 
-const FAILURES = new Set<ReadFailure>(["unsupported", "cancelled", "timeout", "lost", "not_tullave", "failed"]);
+const FAILURES = new Set<ReadFailure>(["unsupported", "off", "cancelled", "timeout", "lost", "not_tullave", "failed"]);
 
-/** This build has the card reader. The phone itself may still lack NFC; `canReadCards` says that. */
+/** This build has the card reader. The phone itself may still lack NFC; `cardReader` says that. */
 export const hasCardReader = Tullave != null;
 
-export function canReadCards(): boolean {
+export type CardReaderState = "ready" | "off" | "missing";
+
+/** Whether the phone can read a card now ("ready"), once the rider turns NFC on ("off"), or never ("missing"). */
+export function cardReader(): CardReaderState {
   try {
-    return Tullave?.isAvailable() ?? false;
+    if (!Tullave) return "missing";
+    // Builds before the NFC settings link only say whether reading works right now.
+    return Tullave.status?.() ?? (Tullave.isAvailable() ? "ready" : "missing");
   } catch {
-    return false;
+    return "missing";
   }
+}
+
+/** Android's NFC settings, where the rider turns it on. iOS has no such switch. */
+export function openNfcSettings() {
+  Tullave?.openSettings?.();
 }
 
 /** Reads the card on the phone. Nothing is sent anywhere and nothing is kept after the screen closes. */
 export async function readCard(): Promise<Card> {
-  if (!Tullave || !canReadCards()) throw new ReadError("unsupported");
+  const state = cardReader();
+  if (!Tullave || state !== "ready") throw new ReadError(state === "off" ? "off" : "unsupported");
   const sheet = t().card.sheet;
   try {
     return parseCard(await Tullave.read(sheet));
@@ -47,7 +58,7 @@ const SHORTCUT = "co.usecroma.paradero.card";
 export function useCardShortcut() {
   useEffect(() => {
     if (!Tullave) return;
-    if (canReadCards()) Tullave.setShortcut?.(t().card.shortcut);
+    if (cardReader() !== "missing") Tullave.setShortcut?.(t().card.shortcut);
     if (Tullave.takeShortcut() === SHORTCUT) router.push("/card");
     const sub = Tullave.addListener("onShortcut", ({ type }) => {
       if (type === SHORTCUT) router.push("/card");

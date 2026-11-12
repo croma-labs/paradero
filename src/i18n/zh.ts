@@ -201,6 +201,7 @@ export const zh: Messages = {
     intro: { ios: "把卡贴近 iPhone 顶部，保持不动，直到手机振动。", android: "把卡贴近手机背面，保持不动，直到手机振动。" },
     read: "读取我的卡",
     again: "再读一次",
+    turnOn: "开启 NFC",
     reading: "请把卡贴近",
     private: "读卡在你的手机上完成。卡号不会离开手机，我们也不保存。",
     balance: "卡内余额",
@@ -225,7 +226,8 @@ export const zh: Messages = {
       lost: "卡移动了，请重试",
     },
     errors: {
-      unsupported: { title: "这部手机无法读卡", body: "需要支持 NFC 的手机。在 Android 上，请在设置中确认已开启 NFC。" },
+      unsupported: { title: "这部手机无法读卡", body: "需要支持 NFC 的手机才能读卡。" },
+      off: { title: "NFC 已关闭", body: "开启 NFC 后，手机就能读卡。请在设置中开启，然后返回。" },
       not_tullave: { title: "不是 TuLlave 卡", body: "这张卡的响应不像 TuLlave。请换用你的 TransMilenio 卡。" },
       lost: { title: "卡移动了", body: "把卡贴紧手机保持不动，直到振动，然后重试。" },
       timeout: { title: "找不到卡", body: "再贴近一些并保持不动。如果卡在卡套里，请取出。" },

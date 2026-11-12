@@ -202,6 +202,7 @@ export const ja: Messages = {
     intro: { ios: "カードをiPhoneの上部にかざし、振動するまで動かさないでください。", android: "カードをスマホの背面にかざし、振動するまで動かさないでください。" },
     read: "カードを読み取る",
     again: "もう一度読み取る",
+    turnOn: "NFCをオンにする",
     reading: "カードをかざしてください",
     private: "読み取りはスマホの中で行われます。カード番号が外に送られることはなく、保存もしません。",
     balance: "カードの残高",
@@ -226,7 +227,8 @@ export const ja: Messages = {
       lost: "カードが動きました。もう一度お試しください",
     },
     errors: {
-      unsupported: { title: "このスマホはカードを読み取れません", body: "NFC対応のスマホが必要です。Androidでは設定でNFCがオンになっているか確認してください。" },
+      unsupported: { title: "このスマホはカードを読み取れません", body: "カードを読み取るにはNFC対応のスマホが必要です。" },
+      off: { title: "NFCがオフです", body: "NFCをオンにするとカードを読み取れます。設定でオンにしてから戻ってください。" },
       not_tullave: { title: "TuLlaveではありません", body: "このカードはTuLlaveとして応答しませんでした。TransMilenioのカードでお試しください。" },
       lost: { title: "カードが動きました", body: "振動するまでスマホにぴったり当てたまま、もう一度お試しください。" },
       timeout: { title: "カードが見つかりません", body: "もっと近づけて動かさないでください。ケースに入っている場合は出してください。" },

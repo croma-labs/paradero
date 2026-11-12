@@ -12,7 +12,7 @@ import { Tile } from "@/components/tile";
 import { useT } from "@/i18n";
 import { announce, useLargeText } from "@/lib/accessibility";
 import { clock } from "@/lib/format";
-import { canReadCards, cancelRead, cardTime, pesos, readCard, ReadError } from "@/lib/tullave";
+import { cancelRead, cardReader, cardTime, openNfcSettings, pesos, readCard, ReadError } from "@/lib/tullave";
 import { usePalette } from "@/theme/colors";
 import { layout, radius, size, space } from "@/theme/tokens";
 import { byMonth, groupNumber, type Card, type Movement } from "@/transit/tullave";
@@ -22,7 +22,15 @@ const SIGN: Record<Movement["kind"], string> = { trip: "−", topup: "+", topupC
 export default function CardScreen() {
   const p = usePalette();
   const t = useT();
-  const [supported] = useState(canReadCards);
+  const [reader, setReader] = useState(cardReader);
+  const supported = reader === "ready";
+  // NFC is turned on in Settings or in the quick settings, and neither tells the app. While it is off, look again every second,
+  // so the card is read as soon as it can be, without another tap.
+  useEffect(() => {
+    if (reader !== "off") return;
+    const timer = setInterval(() => setReader(cardReader()), 1_000);
+    return () => clearInterval(timer);
+  }, [reader]);
   const [result, setResult] = useState<{ card: Card; at: string } | null>(null);
 
   const read = useMutation({
@@ -41,6 +49,10 @@ export default function CardScreen() {
       announce(t.card.speech.balance(pesos(data.card.balance)));
     },
     onError: (error) => {
+      if (error instanceof ReadError && error.code === "off") {
+        started.current = false;
+        return setReader("off");
+      }
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       announce(failureOf(error, t).title);
     },
@@ -55,7 +67,7 @@ export default function CardScreen() {
   }, [supported, mutate]);
   useEffect(() => cancelRead, []);
 
-  const failure = read.error ? failureOf(read.error, t) : null;
+  const failure = read.error && supported ? failureOf(read.error, t) : null;
 
   return (
     <ScrollView style={{ backgroundColor: p.background }} contentContainerStyle={styles.content}>
@@ -66,7 +78,10 @@ export default function CardScreen() {
         <Button variant="quiet" height="md" hug label={t.common.close} onPress={() => router.back()} />
       </View>
 
-      {!supported && <Empty title={t.card.errors.unsupported.title} body={t.card.errors.unsupported.body} art={<Icon name={icons.contactless} color={p.faint} size="lg" />} />}
+      {reader === "missing" && <Empty title={t.card.errors.unsupported.title} body={t.card.errors.unsupported.body} art={<Icon name={icons.contactless} color={p.faint} size="lg" />} />}
+      {reader === "off" && (
+        <Empty title={t.card.errors.off.title} body={t.card.errors.off.body} action={t.card.turnOn} onAction={openNfcSettings} art={<Icon name={icons.contactless} color={p.faint} size="lg" />} />
+      )}
 
       {supported && !result && (
         <View style={styles.hero}>

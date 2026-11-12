@@ -202,6 +202,7 @@ export const pt: Messages = {
     intro: { ios: "Aproxime o cartão da parte de cima do iPhone e mantenha parado até vibrar.", android: "Aproxime o cartão da parte de trás do celular e mantenha parado até vibrar." },
     read: "Ler meu cartão",
     again: "Ler de novo",
+    turnOn: "Ligar o NFC",
     reading: "Aproxime o cartão",
     private: "A leitura acontece no seu celular. O número do cartão não sai dele e não o guardamos.",
     balance: "Saldo no cartão",
@@ -226,7 +227,8 @@ export const pt: Messages = {
       lost: "O cartão se moveu. Tente de novo",
     },
     errors: {
-      unsupported: { title: "Este celular não lê cartões", body: "Você precisa de um celular com NFC. No Android, confira se o NFC está ativado nos Ajustes." },
+      unsupported: { title: "Este celular não lê cartões", body: "Você precisa de um celular com NFC para ler o cartão." },
+      off: { title: "O NFC está desligado", body: "Seu celular lê o cartão quando o NFC está ligado. Ligue nos Ajustes e volte." },
       not_tullave: { title: "Não é um TuLlave", body: "Esse cartão não respondeu como um TuLlave. Tente com seu cartão do TransMilenio." },
       lost: { title: "O cartão se moveu", body: "Mantenha parado contra o celular até vibrar e tente de novo." },
       timeout: { title: "Não encontramos o cartão", body: "Aproxime mais e mantenha parado. Se estiver em uma capinha, tire." },
