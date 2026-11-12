@@ -127,6 +127,11 @@ export default function StopScreen() {
                 <Text variant="caption" tone="muted">
                   {stop.kind === "station" ? t.stop.station : t.stop.sitp}
                 </Text>
+                {stop.code && (
+                  <Text variant="caption" tone="muted">
+                    ({stop.code})
+                  </Text>
+                )}
                 {stop.accessible && (
                   <View style={styles.meta}>
                     <Icon name={icons.wheelchair} color={p.faint} size="xs" />
