@@ -10,6 +10,12 @@ import * as s from "./schemas";
 
 const MINUTE = 60_000;
 
+type LoadedRoute = {
+  route: RouteDetail["route"];
+  path: RouteDetail["path"];
+  stops: { id: string; name: string; lat: number; lon: number; offsetSeconds: number }[];
+};
+
 /** How long a live answer may stand in for one the source failed to give. Every answer carries its own time, so the app says how old it is. */
 const LIVE_GRACE_MS = 90_000;
 /** Croma picks up each new TransMilenio batch within seconds, so live answers are shared for only a few. */
@@ -18,8 +24,9 @@ const nearbyCache = cached<Nearby>(5 * MINUTE);
 const searchCache = cached<SearchResult>(30 * MINUTE);
 const stopCache = cached<z.infer<typeof s.stopLookup>>(6 * 60 * MINUTE);
 const arrivalsCache = cached<z.infer<typeof s.arrivals>>(LIVE_TTL_MS, LIVE_GRACE_MS);
+const departuresCache = cached<z.infer<typeof s.departures>>(5 * MINUTE);
 const alertsCache = cached<Alert[]>(2 * MINUTE);
-const routeCache = cached<Omit<RouteDetail, "buses" | "feed" | "alerts">>(60 * MINUTE);
+const routeCache = cached<LoadedRoute>(60 * MINUTE);
 const busesCache = cached<{ feed: Feed; buses: Bus[] }>(LIVE_TTL_MS, LIVE_GRACE_MS);
 const aroundCache = cached<z.infer<typeof s.vehicles>>(LIVE_TTL_MS, LIVE_GRACE_MS);
 
@@ -44,6 +51,23 @@ function toAlerts(raw: z.infer<typeof s.alerts>): Alert[] {
     const { title, detail, places, note } = humanizeAlert({ effect: a.effect ?? null, description: a.description ?? null, routes });
     return { id: a.alert_id, effect: a.effect ?? "unknown", title, detail, places, note, routes, until: a.active_periods[0]?.end ?? null };
   });
+}
+
+/** A departure from the published timetable, shaped like an arrival so the same row can draw it. */
+function toScheduled(dep: z.infer<typeof s.departures>["departures"][number]): Arrival {
+  const route = describeRoute({ id: dep.route_id, shortName: dep.route_code ?? null, longName: dep.route_name ?? null, system: dep.system ?? null });
+  return {
+    routeId: dep.route_id,
+    code: route.code,
+    aliases: route.aliases,
+    name: route.name,
+    system: route.system,
+    minutes: dep.minutes_from_now ?? null,
+    at: dep.at,
+    basis: "scheduled",
+    delaySeconds: null,
+    vehicle: null,
+  };
 }
 
 /** Nearest first, rounded to ~50 m so riders standing on the same corner share one answer. */
@@ -94,6 +118,16 @@ export async function stopDetail(stopId: string): Promise<StopDetail | null> {
   if (!lookup.found || !lookup.stop) return null;
   const stop = toStop(lookup.stop);
   const live = isLive(next.as_of, next.live);
+  const scheduled =
+    next.arrivals.length === 0
+      ? await within(
+          departuresCache(stopId, () => croma("stop-departures", { stop_id: stopId, limit: 20 }, s.departures)).then((d) =>
+            d.departures.filter((dep) => Date.parse(dep.at) > Date.now()).map(toScheduled),
+          ),
+          1500,
+          [] as Arrival[],
+        )
+      : [];
   feedDown = !live;
 
   const arrivals: Arrival[] = next.arrivals.map((a) => {
@@ -117,6 +151,7 @@ export async function stopDetail(stopId: string): Promise<StopDetail | null> {
     feed: { asOf: next.as_of, live },
     stop,
     arrivals,
+    scheduled,
     incoming,
     alerts,
   };
@@ -169,7 +204,9 @@ async function loadRoute(routeId: string) {
       .slice(0, 4)
       .map((pt) => ({ path: simplify((pt.geometry?.coordinates ?? []).map((c) => [c[0], c[1]] as [number, number]), 6), stops: pt.stops.map((st) => st.stop_id) })),
     stops: (main?.stops ?? []).flatMap((st) =>
-      st.latitude == null || st.longitude == null ? [] : [{ id: st.stop_id, name: st.name ?? "Paradero", lat: st.latitude, lon: st.longitude }],
+      st.latitude == null || st.longitude == null
+        ? []
+        : [{ id: st.stop_id, name: st.name ?? "Paradero", lat: st.latitude, lon: st.longitude, offsetSeconds: st.offset_seconds ?? 0 }],
     ),
   };
 }
@@ -206,8 +243,20 @@ export async function routeDetail(routeId: string): Promise<RouteDetail | null> 
   if (!base) return null;
 
   const code = base.route.feedCode;
-  const [{ feed, buses }, alerts] = await Promise.all([busesOn(code), alertsFor({ route: code })]);
-  return { ...base, feed, buses, alerts };
+  const first = base.stops[0];
+  const [{ feed, buses }, alerts, nextDepartures] = await Promise.all([
+    busesOn(code),
+    alertsFor({ route: code }),
+    first
+      ? within(departuresCache(`route:${routeId}`, () => croma("stop-departures", { stop_id: first.id, route: routeId, limit: 5 }, s.departures)), 1500, null)
+      : Promise.resolve(null),
+  ]);
+  const firstAt = nextDepartures?.departures.find((d) => Date.parse(d.at) > Date.now())?.at ?? null;
+  const stops = base.stops.map(({ offsetSeconds, ...stop }) => ({
+    ...stop,
+    at: firstAt ? new Date(Date.parse(firstAt) + offsetSeconds * 1000).toISOString() : null,
+  }));
+  return { ...base, stops, feed, buses, alerts };
 }
 
 export async function health(): Promise<Health> {

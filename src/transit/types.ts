@@ -86,6 +86,8 @@ export interface StopDetail {
   feed: Feed;
   stop: Stop;
   arrivals: Arrival[];
+  /** The published timetable, only when no live arrival is known. */
+  scheduled: Arrival[];
   incoming: IncomingBus[];
   alerts: Alert[];
 }
@@ -100,7 +102,7 @@ export interface RouteDetail {
   path: [number, number][];
   /** Every way the route runs, the busiest first: its line and its stops in order. Absent from servers before 0.0.5. */
   patterns?: { path: [number, number][]; stops: string[] }[];
-  stops: { id: string; name: string; lat: number; lon: number }[];
+  stops: { id: string; name: string; lat: number; lon: number; at: string | null }[];
   buses: Bus[];
   alerts: Alert[];
 }

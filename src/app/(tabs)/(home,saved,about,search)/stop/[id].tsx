@@ -54,6 +54,7 @@ export default function StopScreen() {
 
   const codes = useMemo(() => [...new Set((data?.arrivals ?? []).map((a) => a.code))], [data]);
   const arrivals = (data?.arrivals ?? []).filter((a) => !only || a.code === only);
+  const scheduled = data?.scheduled ?? [];
   const [next, ...later] = arrivals;
 
   // The bus the map follows: the next one, until the rider picks another.
@@ -169,7 +170,20 @@ export default function StopScreen() {
               </ScrollView>
             )}
 
-            {next ? <NextBus arrival={next} following={!!focus && followed === next} onPress={() => follow(next)} /> : <Empty title={t.stop.none.title} body={t.stop.none.body} />}
+            {next ? (
+              <NextBus arrival={next} following={!!focus && followed === next} onPress={() => follow(next)} />
+            ) : scheduled.length > 0 ? (
+              <View>
+                <Text variant="title" style={styles.heading}>
+                  {t.feed.scheduled}
+                </Text>
+                {scheduled.slice(0, 10).map((a, i) => (
+                  <ArrivalRow key={`${a.code}-${a.at}-${i}`} arrival={a} first={i === 0} index={i} />
+                ))}
+              </View>
+            ) : (
+              <Empty title={t.stop.none.title} body={t.stop.none.body} />
+            )}
 
             {/* Each live arrival already says so; the notice is for when times fall back to the timetable. */}
             {!data.feed.live && <FeedStatus feed={data.feed} />}
