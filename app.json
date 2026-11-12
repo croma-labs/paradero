@@ -2,7 +2,7 @@
   "expo": {
     "name": "Paradero",
     "slug": "paradero",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "paradero",
@@ -106,6 +106,9 @@
         "asyncRoutes": {
           "web": true
         }
+      },
+      "eas": {
+        "projectId": "a23a7323-de4f-40dd-b950-d55019b132b1"
       }
     },
     "locales": {
@@ -116,6 +119,7 @@
       "de": "./locales/de.json",
       "ja": "./locales/ja.json",
       "zh-Hans": "./locales/zh-Hans.json"
-    }
+    },
+    "owner": "kebo-app"
   }
 }
