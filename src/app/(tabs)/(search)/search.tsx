@@ -14,6 +14,7 @@ import { Text } from "@/components/text";
 import { useT } from "@/i18n";
 import { announce } from "@/lib/accessibility";
 import { useSearch } from "@/lib/api";
+import { addRecent, clearRecents, useRecents } from "@/lib/recents";
 import { usePalette } from "@/theme/colors";
 import { motion } from "@/theme/motion";
 import { fonts, layout, radius, size, space, type } from "@/theme/tokens";
@@ -33,6 +34,7 @@ export default function Search() {
   }
   const bar = useRef<SearchBarCommands>(null);
   const t = useT();
+  const recents = useRecents();
 
   useEffect(() => {
     if (!q) return;
@@ -72,7 +74,7 @@ export default function Search() {
       <ScrollView contentInsetAdjustmentBehavior="automatic" keyboardDismissMode="on-drag" contentContainerStyle={styles.content}>
         {ANDROID && <Field value={text} onChange={setText} />}
 
-        {!typed && (
+        {!typed && recents.length === 0 && (
           <Animated.View entering={motion.appear()} style={styles.hint}>
             <Text variant="title">{t.search.hint}</Text>
             <Text variant="callout" tone="muted">
@@ -86,6 +88,36 @@ export default function Search() {
           </Animated.View>
         )}
 
+        {!typed && recents.length > 0 && (
+          <Animated.View entering={motion.appear()} style={styles.section}>
+            <View style={styles.recentsHeader}>
+              <Text variant="eyebrow" tone="faint" accessibilityRole="header" style={styles.recentsTitle}>
+                {t.search.recents}
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${t.common.clear}, ${t.search.recentSearches}`}
+                onPress={() => {
+                  clearRecents();
+                  announce(t.search.recentsCleared);
+                }}
+                hitSlop={space[3]}
+                style={styles.clear}>
+                <Text variant="callout" weight={500} tone="muted">
+                  {t.common.clear}
+                </Text>
+              </Pressable>
+            </View>
+            {recents.map((r) =>
+              r.type === "route" ? (
+                <RouteRow key={`route-${r.route.id}`} route={r.route} onOpen={() => addRecent(r)} />
+              ) : (
+                <StopRow key={`stop-${r.stop.id}`} stop={r.stop} onOpen={() => addRecent(r)} />
+              ),
+            )}
+          </Animated.View>
+        )}
+
         {typed && isFetching && !data && <SkeletonList rows={5} />}
         {typed && isError && <Empty title={t.search.failed.title} body={t.search.failed.body} action={t.common.retry} onAction={() => void refetch()} />}
         {typed && nothing && <Empty title={t.search.nothing(query.trim())} body={t.search.nothingBody} />}
@@ -96,7 +128,7 @@ export default function Search() {
               {t.search.routes}
             </Text>
             {data.routes.map((r) => (
-              <RouteRow key={r.id} route={r} />
+              <RouteRow key={r.id} route={r} onOpen={() => addRecent({ type: "route", route: r })} />
             ))}
           </View>
         )}
@@ -107,7 +139,7 @@ export default function Search() {
               {t.search.stops}
             </Text>
             {data.stops.map((s) => (
-              <StopRow key={s.id} stop={s} />
+              <StopRow key={s.id} stop={s} onOpen={() => addRecent({ type: "stop", stop: s })} />
             ))}
           </View>
         )}
@@ -159,4 +191,7 @@ const styles = StyleSheet.create({
   chips: { flexDirection: "row", flexWrap: "wrap", gap: space[2], marginTop: space[2] },
   section: { marginTop: space[3] },
   label: { paddingHorizontal: space[4], paddingVertical: space[2] },
+  recentsHeader: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: space[3], paddingHorizontal: space[4] },
+  recentsTitle: { paddingVertical: space[2] },
+  clear: { minHeight: size.control.sm, justifyContent: "center" },
 });

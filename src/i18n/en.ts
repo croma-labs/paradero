@@ -162,6 +162,9 @@ export const en: Messages = {
     nothingBody: "Try just the route code, like B10, or part of the stop name.",
     routes: "Routes",
     stops: "Stations and stops",
+    recents: "Recent",
+    recentSearches: "recent searches",
+    recentsCleared: "Recent searches cleared",
   },
 
   about: {
@@ -310,7 +313,7 @@ export const en: Messages = {
       },
       {
         title: "What stays on your phone",
-        body: "Your saved stops and routes, their nicknames and your appearance and language settings live only on your phone. If you delete the app, they are deleted.",
+        body: "Your saved stops and routes, their nicknames, the routes and stops you recently opened from Search (tap “Clear” to remove them) and your appearance and language settings live only on your phone. If you delete the app, they are deleted.",
       },
       {
         title: "Reports",

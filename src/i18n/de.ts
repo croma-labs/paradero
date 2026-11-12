@@ -162,6 +162,9 @@ export const de: Messages = {
     nothingBody: "Versuche nur den Liniencode, etwa B10, oder einen Teil des Haltestellennamens.",
     routes: "Linien",
     stops: "Stationen und Haltestellen",
+    recents: "Zuletzt",
+    recentSearches: "letzte Suchen",
+    recentsCleared: "Letzte Suchen gelöscht",
   },
 
   about: {
@@ -310,7 +313,7 @@ export const de: Messages = {
       },
       {
         title: "Was auf deinem Telefon bleibt",
-        body: "Deine gespeicherten Haltestellen und Linien, ihre Spitznamen und deine Einstellungen für Darstellung und Sprache bleiben nur auf deinem Telefon. Wenn du die App löschst, werden sie gelöscht.",
+        body: "Deine gespeicherten Haltestellen und Linien, ihre Spitznamen, die Linien und Haltestellen, die du zuletzt über Suchen geöffnet hast (mit „Löschen“ entfernst du sie), und deine Einstellungen für Darstellung und Sprache bleiben nur auf deinem Telefon. Wenn du die App löschst, werden sie gelöscht.",
       },
       {
         title: "Meldungen",

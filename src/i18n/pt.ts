@@ -162,6 +162,9 @@ export const pt: Messages = {
     nothingBody: "Tente só o código da linha, como B10, ou parte do nome do ponto.",
     routes: "Linhas",
     stops: "Estações e pontos",
+    recents: "Recentes",
+    recentSearches: "buscas recentes",
+    recentsCleared: "Limpamos suas buscas recentes",
   },
 
   about: {
@@ -310,7 +313,7 @@ export const pt: Messages = {
       },
       {
         title: "O que fica no seu celular",
-        body: "Seus pontos e linhas salvos, seus apelidos e suas preferências de aparência e idioma ficam só no seu celular. Se você apagar o app, eles são apagados.",
+        body: "Seus pontos e linhas salvos, seus apelidos, as linhas e pontos que você abriu há pouco em Buscar (toque em “Limpar” para tirá-los) e suas preferências de aparência e idioma ficam só no seu celular. Se você apagar o app, eles são apagados.",
       },
       {
         title: "Relatos",

@@ -162,6 +162,9 @@ export const fr: Messages = {
     nothingBody: "Essayez seulement le code de la ligne, comme B10, ou une partie du nom de l’arrêt.",
     routes: "Lignes",
     stops: "Stations et arrêts",
+    recents: "Récents",
+    recentSearches: "recherches récentes",
+    recentsCleared: "Recherches récentes effacées",
   },
 
   about: {
@@ -310,7 +313,7 @@ export const fr: Messages = {
       },
       {
         title: "Ce qui reste sur votre téléphone",
-        body: "Vos arrêts et lignes enregistrés, leurs surnoms et vos réglages d’apparence et de langue restent uniquement sur votre téléphone. Si vous supprimez l’app, ils sont supprimés.",
+        body: "Vos arrêts et lignes enregistrés, leurs surnoms, les lignes et arrêts ouverts récemment depuis Rechercher (touchez « Effacer » pour les retirer) et vos réglages d’apparence et de langue restent uniquement sur votre téléphone. Si vous supprimez l’app, ils sont supprimés.",
       },
       {
         title: "Signalements",
