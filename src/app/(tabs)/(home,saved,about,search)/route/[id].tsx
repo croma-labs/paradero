@@ -7,6 +7,7 @@ import { toast } from "sonner-native";
 
 import { AlertCard } from "@/components/alert-card";
 import { Button } from "@/components/button";
+import { Chip } from "@/components/chip";
 import { DetailScreen } from "@/components/detail-screen";
 import { FeedStatus } from "@/components/feed-status";
 import { BusGlyph } from "@/components/glyphs";
@@ -19,7 +20,7 @@ import { TransitMap } from "@/components/transit-map";
 import type { MapHandle } from "@/components/transit-map.types";
 import { useT } from "@/i18n";
 import { announce, useAccessibility, useLargeText } from "@/lib/accessibility";
-import { useRoute } from "@/lib/api";
+import { prefetchRoute, useRoute } from "@/lib/api";
 import { BOGOTA } from "@/lib/location";
 import { toggleRoute, useIsSaved } from "@/lib/saved";
 import { usePalette } from "@/theme/colors";
@@ -89,6 +90,30 @@ export default function RouteScreen() {
                 {[t.systems[data.route.system], data.route.variant ? (t.variants[data.route.variant] ?? data.route.variant) : null].filter(Boolean).join("  ·  ")}
               </Text>
             </View>
+
+            {data.directions.length > 1 && (
+              <View style={styles.directions}>
+                <Text variant="eyebrow" tone="faint" nativeID="route-direction">
+                  {t.route.direction}
+                </Text>
+                <View accessibilityRole="radiogroup" accessibilityLabelledBy="route-direction" style={styles.chips}>
+                  {data.directions.map((d) => (
+                    <Chip
+                      key={d.id}
+                      radio
+                      label={t.route.toward(d.name)}
+                      selected={d.id === data.route.id}
+                      onPress={() => {
+                        if (d.id === data.route.id) return;
+                        void Haptics.selectionAsync();
+                        prefetchRoute(d.id);
+                        router.replace({ pathname: "/route/[id]", params: { id: d.id } });
+                      }}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
 
             <View style={large ? styles.factsStacked : styles.facts}>
               <Fact label={t.route.first} value={data.route.firstDeparture ?? "–"} />
@@ -163,6 +188,8 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   header: { gap: space[2] },
+  directions: { gap: space[2] },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: space[2] },
   facts: { flexDirection: "row", gap: space[2] },
   factsStacked: { gap: space[2] },
   fact: { flex: 1, padding: space[3], borderRadius: radius.lg, borderCurve: "continuous", gap: space[1], borderWidth: StyleSheet.hairlineWidth },

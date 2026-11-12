@@ -18,12 +18,17 @@ export const reportInput = z.object({
   app: z.object({ version: z.string().max(20), platform: z.enum(["ios", "android", "web"]) }),
 });
 
-/** Reports are public, so anything that looks like a way to reach a person is removed before it leaves the server. */
+/** A Colombian mobile (3xx xxx xxxx) or landline (60x xxx xxxx), with or without +57. */
+const PHONE = /^(57)?(3\d{9}|60\d{7,8})$/;
+
+/**
+ * Reports are public, so anything that looks like a way to reach a person is removed before it leaves the server.
+ * Numbers are matched as people type them: "300 123 45 67", "+57 300-123-4567", a cédula as "1.023.456.789".
+ */
 export function scrub(text: string): string {
   return text
     .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[correo oculto]")
-    .replace(/(\+?57[\s-]?)?(3\d{2}|60\d)[\s-]?\d{3}[\s-]?\d{4}\b/g, "[teléfono oculto]")
-    .replace(/\b\d{6,10}\b/g, "[número oculto]");
+    .replace(/\+?\d(?:[ .-]?\d){5,}/g, (run) => (PHONE.test(run.replace(/\D/g, "")) ? "[teléfono oculto]" : "[número oculto]"));
 }
 
 const WINDOW_MS = 60 * 60_000;

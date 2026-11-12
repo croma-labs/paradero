@@ -47,6 +47,13 @@ export default function Home() {
   const anchor = here ?? (outside ? BOGOTA : null);
   const nearby = useNearby(anchor);
   const stops = nearby.data?.stops ?? [];
+  // Moving to a new spot glides the camera there; remounting the map for it reloaded the style and flashed blank.
+  const spot = anchor ? `${anchor.lat.toFixed(3)},${anchor.lon.toFixed(3)}` : null;
+  useEffect(() => {
+    if (!spot) return;
+    const [lat, lon] = spot.split(",").map(Number);
+    map.current?.flyTo(lat, lon, 16);
+  }, [spot]);
   const closest = stops.slice(0, 3).map((s) => s.id).join(",");
   useEffect(() => {
     if (closest) closest.split(",").forEach(prefetchStop);
@@ -61,7 +68,7 @@ export default function Home() {
     <View style={[styles.screen, { backgroundColor: p.background }]}>
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={StyleSheet.absoluteFill}>
       <TransitMap
-        key={anchor ? `${anchor.lat.toFixed(3)},${anchor.lon.toFixed(3)}` : "city"}
+        key={here ? "here" : outside ? "outside" : "city"}
         ref={map}
         center={anchor ?? BOGOTA}
         zoom={anchor ? 16 : 12}

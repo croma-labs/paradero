@@ -126,6 +126,8 @@ export const ja: Messages = {
 
   route: {
     failed: { title: "この路線を読み込めませんでした", body: "接続を確認して、もう一度お試しください。" },
+    direction: "方面",
+    toward: (place) => `${place}方面`,
     first: "始発",
     last: "終発",
     onRoad: "運行中",

@@ -129,6 +129,8 @@ export const es = {
 
   route: {
     failed: { title: "No pudimos cargar esta ruta", body: "Revisa tu conexión e intenta de nuevo." },
+    direction: "Sentido",
+    toward: (place: string) => `Hacia ${place}`,
     first: "Primer bus",
     last: "Último bus",
     onRoad: "En vía",

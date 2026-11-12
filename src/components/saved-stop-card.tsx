@@ -8,6 +8,8 @@ import { useLargeText } from "@/lib/accessibility";
 import { prefetchStop, useStop } from "@/lib/api";
 import { spokenCode, spokenWhen } from "@/lib/format";
 import type { SavedStop } from "@/lib/saved";
+import { useNow } from "@/lib/tick";
+import { minutesLeft } from "@/transit/time";
 import { usePalette } from "@/theme/colors";
 import { radius, size, space } from "@/theme/tokens";
 
@@ -18,13 +20,14 @@ import { Text } from "./text";
 
 /** A saved stop with its next buses, so the answer is on screen before the rider taps anything. */
 export function SavedStopCard({ saved, width }: { saved: SavedStop; width?: number }) {
+  const now = useNow(15_000);
   const p = usePalette();
   const { data, isLoading } = useStop(saved.id);
   const next = data?.arrivals.slice(0, 2) ?? [];
   const t = useT();
   const large = useLargeText();
   const title = saved.nickname ?? saved.name;
-  const lines = isLoading ? [t.speech.loading] : next.length === 0 ? [t.stop.noBuses] : next.map((a) => t.speech.savedLine(t.speech.route(spokenCode(a.code)), spokenWhen(a.minutes)));
+  const lines = isLoading ? [t.speech.loading] : next.length === 0 ? [t.stop.noBuses] : next.map((a) => t.speech.savedLine(t.speech.route(spokenCode(a.code)), spokenWhen(minutesLeft(a, now))));
 
   return (
     <PressableScale
@@ -55,7 +58,7 @@ export function SavedStopCard({ saved, width }: { saved: SavedStop; width?: numb
         {next.map((a, i) => (
           <View key={`${a.code}-${i}`} style={styles.line}>
             <RouteBadge code={a.code} system={a.system} size="sm" />
-            <Minutes value={a.minutes} size="sm" />
+            <Minutes value={minutesLeft(a, now)} size="sm" />
           </View>
         ))}
       </View>
