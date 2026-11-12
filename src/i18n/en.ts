@@ -162,6 +162,9 @@ export const en: Messages = {
     nothingBody: "Try just the route code, like B10, or part of the stop name.",
     routes: "Routes",
     stops: "Stations and stops",
+    recents: "Recent",
+    recentSearches: "recent searches",
+    recentsCleared: "Recent searches cleared",
   },
 
   about: {

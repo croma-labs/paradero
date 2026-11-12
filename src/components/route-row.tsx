@@ -14,7 +14,8 @@ import { Icon, icons } from "./icon";
 import { RouteBadge } from "./route-badge";
 import { Text } from "./text";
 
-export function RouteRow({ route }: { route: Pick<RouteRef, "id" | "code" | "name" | "system"> }) {
+/** `onOpen` runs when the rider opens the route, before the screen changes. */
+export function RouteRow({ route, onOpen }: { route: Pick<RouteRef, "id" | "code" | "name" | "system">; onOpen?: () => void }) {
   const p = usePalette();
   const t = useT();
   return (
@@ -25,6 +26,7 @@ export function RouteRow({ route }: { route: Pick<RouteRef, "id" | "code" | "nam
       onPressIn={() => prefetchRoute(route.id)}
       onPress={() => {
         void Haptics.selectionAsync();
+        onOpen?.();
         router.push({ pathname: "/route/[id]", params: { id: route.id } });
       }}
       style={styles.row}>

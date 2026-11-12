@@ -162,6 +162,9 @@ export const fr: Messages = {
     nothingBody: "Essayez seulement le code de la ligne, comme B10, ou une partie du nom de l’arrêt.",
     routes: "Lignes",
     stops: "Stations et arrêts",
+    recents: "Récents",
+    recentSearches: "recherches récentes",
+    recentsCleared: "Recherches récentes effacées",
   },
 
   about: {

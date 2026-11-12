@@ -162,6 +162,9 @@ export const ja: Messages = {
     nothingBody: "B10のような路線番号だけ、または停留所名の一部で試してください。",
     routes: "路線",
     stops: "駅と停留所",
+    recents: "最近",
+    recentSearches: "最近の検索",
+    recentsCleared: "最近の検索を消去しました",
   },
 
   about: {

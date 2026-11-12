@@ -162,6 +162,9 @@ export const zh: Messages = {
     nothingBody: "试试只输入线路号（例如 B10），或站点名称的一部分。",
     routes: "线路",
     stops: "车站和站点",
+    recents: "最近",
+    recentSearches: "最近的搜索",
+    recentsCleared: "已清除最近的搜索",
   },
 
   about: {

@@ -165,6 +165,9 @@ export const es = {
     nothingBody: "Prueba solo el código de la ruta, como B10, o una parte del nombre del paradero.",
     routes: "Rutas",
     stops: "Estaciones y paraderos",
+    recents: "Recientes",
+    recentSearches: "búsquedas recientes",
+    recentsCleared: "Borramos tus búsquedas recientes",
   },
 
   about: {

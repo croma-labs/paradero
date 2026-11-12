@@ -162,6 +162,9 @@ export const pt: Messages = {
     nothingBody: "Tente só o código da linha, como B10, ou parte do nome do ponto.",
     routes: "Linhas",
     stops: "Estações e pontos",
+    recents: "Recentes",
+    recentSearches: "buscas recentes",
+    recentsCleared: "Limpamos suas buscas recentes",
   },
 
   about: {

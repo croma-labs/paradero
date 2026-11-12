@@ -162,6 +162,9 @@ export const de: Messages = {
     nothingBody: "Versuche nur den Liniencode, etwa B10, oder einen Teil des Haltestellennamens.",
     routes: "Linien",
     stops: "Stationen und Haltestellen",
+    recents: "Zuletzt",
+    recentSearches: "letzte Suchen",
+    recentsCleared: "Letzte Suchen gelöscht",
   },
 
   about: {
