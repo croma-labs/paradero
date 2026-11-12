@@ -23,7 +23,8 @@ export function StopTile({ kind, tier = "md" }: { kind: Stop["kind"]; tier?: key
   return <Tile tier={tier}>{kind === "station" ? <StationGlyph size={glyph} color={p.text} /> : <StopSignGlyph size={glyph} color={p.text} cut={p.surface} />}</Tile>;
 }
 
-export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | null }) {
+/** Opens the stop's own screen, unless `onPress` shows it somewhere else (the home sheet). */
+export function StopRow({ stop, nickname, onPress }: { stop: Stop; nickname?: string | null; onPress?: () => void }) {
   const p = usePalette();
   const shown = stop.routes.slice(0, 5);
   const more = stop.routes.length - shown.length;
@@ -48,7 +49,8 @@ export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | nu
       onPressIn={() => prefetchStop(stop.id)}
       onPress={() => {
         void Haptics.selectionAsync();
-        router.push({ pathname: "/stop/[id]", params: { id: stop.id } });
+        if (onPress) onPress();
+        else router.push({ pathname: "/stop/[id]", params: { id: stop.id } });
       }}
       style={styles.row}>
       <StopTile kind={stop.kind} />
