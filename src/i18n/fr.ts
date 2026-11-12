@@ -313,7 +313,7 @@ export const fr: Messages = {
       },
       {
         title: "Ce qui reste sur votre téléphone",
-        body: "Vos arrêts et lignes enregistrés, leurs surnoms et vos réglages d’apparence et de langue restent uniquement sur votre téléphone. Si vous supprimez l’app, ils sont supprimés.",
+        body: "Vos arrêts et lignes enregistrés, leurs surnoms, les lignes et arrêts ouverts récemment depuis Rechercher (touchez « Effacer » pour les retirer) et vos réglages d’apparence et de langue restent uniquement sur votre téléphone. Si vous supprimez l’app, ils sont supprimés.",
       },
       {
         title: "Signalements",

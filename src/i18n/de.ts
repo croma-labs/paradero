@@ -313,7 +313,7 @@ export const de: Messages = {
       },
       {
         title: "Was auf deinem Telefon bleibt",
-        body: "Deine gespeicherten Haltestellen und Linien, ihre Spitznamen und deine Einstellungen für Darstellung und Sprache bleiben nur auf deinem Telefon. Wenn du die App löschst, werden sie gelöscht.",
+        body: "Deine gespeicherten Haltestellen und Linien, ihre Spitznamen, die Linien und Haltestellen, die du zuletzt über Suchen geöffnet hast (mit „Löschen“ entfernst du sie), und deine Einstellungen für Darstellung und Sprache bleiben nur auf deinem Telefon. Wenn du die App löschst, werden sie gelöscht.",
       },
       {
         title: "Meldungen",

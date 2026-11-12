@@ -316,7 +316,7 @@ export const es = {
       },
       {
         title: "Lo que se queda en tu teléfono",
-        body: "Tus paraderos y rutas guardados, sus apodos y tus preferencias de apariencia e idioma viven solo en tu teléfono. Si borras la app, se borran.",
+        body: "Tus paraderos y rutas guardados, sus apodos, las rutas y paraderos que abriste hace poco desde Buscar (los quitas con «Borrar») y tus preferencias de apariencia e idioma viven solo en tu teléfono. Si borras la app, se borran.",
       },
       {
         title: "Reportes",
