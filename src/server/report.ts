@@ -4,7 +4,7 @@ import { REPORT_KINDS, type ReportInput, type ReportResult } from "@/transit/rep
 
 import { CromaError } from "./croma";
 
-const REPO = process.env.REPORTS_REPO ?? "croma-labs/paradero";
+const REPO = process.env.REPORTS_REPO || "croma-labs/paradero";
 const LABEL = "reporte ciudadano";
 
 const id = z.string().regex(/^[A-Za-z0-9_.-]{1,40}$/);
