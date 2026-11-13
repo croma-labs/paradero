@@ -119,13 +119,14 @@ export default function RouteScreen() {
                     accessibilityRole="button"
                     accessibilityLabel={t.route.stopLabel(i + 1, s.name)}
                     onPress={() => router.push({ pathname: "/stop/[id]", params: { id: s.id } })}
-                    style={styles.stopRow}>
+                    hitSlop={edge ? undefined : { top: space[1], bottom: space[1] }}
+                    style={[styles.stopRow, edge ? styles.stopRowEdge : styles.stopRowStop]}>
                     <View style={styles.rail}>
                       <View style={[styles.line, { backgroundColor: tint, opacity: i === 0 ? 0 : 1 }]} />
                       <View style={[edge ? styles.edgeNode : styles.node, { borderColor: tint, backgroundColor: edge ? tint : p.background }]} />
                       <View style={[styles.line, { backgroundColor: tint, opacity: i === data.stops.length - 1 ? 0 : 1 }]} />
                     </View>
-                    <Text variant={edge ? "headline" : "callout"} weight={edge ? 600 : 400} numberOfLines={large ? undefined : 1} style={{ flex: 1 }}>
+                    <Text variant={edge ? "headline" : "caption"} weight={edge ? 600 : 400} numberOfLines={large ? undefined : 1} style={{ flex: 1 }}>
                       {s.name}
                     </Text>
                   </PressableScale>
@@ -168,9 +169,11 @@ const styles = StyleSheet.create({
   fact: { flex: 1, padding: space[3], borderRadius: radius.lg, borderCurve: "continuous", gap: space[1], borderWidth: StyleSheet.hairlineWidth },
   note: { flexDirection: "row", alignItems: "center", gap: space[3], padding: space[4], borderRadius: radius.lg, borderCurve: "continuous" },
   heading: { marginBottom: space[2] },
-  stopRow: { flexDirection: "row", alignItems: "center", gap: space[3], minHeight: size.control.md },
-  rail: { width: size.icon.md, alignItems: "center", alignSelf: "stretch" },
+  stopRow: { flexDirection: "row", alignItems: "center", gap: space[2] },
+  stopRowEdge: { minHeight: size.control.md },
+  stopRowStop: { minHeight: size.control.sm },
+  rail: { width: size.icon.sm, alignItems: "center", alignSelf: "stretch" },
   line: { width: size.line.rule, flex: 1 },
-  node: { width: size.dot.md, height: size.dot.md, borderRadius: radius.pill, borderWidth: size.line.rule },
+  node: { width: size.dot.sm, height: size.dot.sm, borderRadius: radius.pill, borderWidth: size.line.rule },
   edgeNode: { width: size.icon.xs, height: size.icon.xs, borderRadius: radius.pill, borderWidth: size.line.bar },
 });
