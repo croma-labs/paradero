@@ -67,6 +67,7 @@ git clone https://github.com/croma-labs/paradero
 cd paradero
 npm install
 cp .env.example .env.local   # pega tu CROMA_API_KEY, gratis en platform.usecroma.com
+npm run network              # el planeador de viajes: horario oficial y mapa de Bogotá en public/network
 npx expo run:ios             # o: npx expo run:android
 ```
 
@@ -89,14 +90,37 @@ La llave de la API vive solo en el servidor. Cada respuesta se comparte unos seg
 | `GET /api/stops/:id` | Paradero, próximos buses, buses en camino y novedades |
 | `GET /api/routes/:id` | Recorrido, paradas, buses en vía y novedades |
 | `GET /api/health` | Si TransMilenio está publicando en vivo |
+| `GET /api/places?q` | Direcciones ("Calle 72 # 10-34"), cruces, estaciones, paraderos, sitios y barrios, con el barrio y la estación más cercana para confirmar |
+| `GET /api/plan?from&to&at` | Cómo llegar: hasta tres opciones con caminatas, esperas, transbordos y novedades |
+| `POST /api/mcp` | Lo mismo, para asistentes de IA (ver abajo) |
 
 Expo SDK 58 · Expo Router con pestañas nativas · Liquid Glass · MapLibre · TanStack Query · SQLite local · Zod · con la identidad de Croma (Geist, Geist Mono y Victor Mono), en claro y oscuro.
+
+### ¿Cómo llego?
+
+"Estoy en Unicentro, voy para la Calle 72 # 10-34". Paradero lee la dirección como se escribe en Bogotá. Busca en el horario oficial completo, viaje por viaje, y responde con hasta tres opciones. Cada bus dice si es TransMilenio o SITP, dónde subirse y bajarse, y si su hora es en vivo o del horario. Usa RAPTOR, el mismo algoritmo de OpenTripPlanner, verificado contra un segundo algoritmo exacto en 2.000 viajes. Responde en menos de 0,2 s en el 95 % de los casos. Nunca adivina un lugar: si una dirección es ambigua o no existe, lo dice y pregunta. El diseño, las pruebas y los límites están en [`docs/PLANNER.md`](docs/PLANNER.md).
+
+### Desde tu asistente de IA
+
+Paradero también habla [MCP](https://modelcontextprotocol.io), el protocolo abierto con el que Claude, ChatGPT, Cursor y otros asistentes usan herramientas. Agrega `https://paradero.expo.app/api/mcp` como conector remoto y pregúntale en tus palabras: "¿en cuánto pasa el K635 por la 72?".
+
+| Herramienta | Qué hace |
+| --- | --- |
+| `find_nearby_stops` | Paraderos y estaciones cerca de un punto |
+| `search` | Rutas y paraderos por código o nombre |
+| `get_stop` | Próximos buses, buses en camino y novedades de un paradero |
+| `get_route` | Paradas, horario y buses en vía de una ruta |
+| `feed_status` | Si TransMilenio está publicando en vivo |
+| `resolve_place` | Una dirección, un cruce o un sitio, con el barrio y la estación más cercana para confirmarlo contigo |
+| `plan_trip` | Cómo llegar entre dos lugares ya confirmados |
+
+Son las mismas funciones y reglas de caché que usa la app, solo de lectura y sin cuenta. Las respuestas dicen si cada hora es en vivo o del horario, y el asistente recibe la instrucción de decirlo. Las coordenadas se redondean a una cuadra antes de consultar.
 
 ## Lo que sigue
 
 - **Pregúntale a Paradero:** modo agente en lenguaje natural ("¿cómo llego a la Nacional?") que responde con datos en vivo y las mismas tarjetas de la app.
 - Avisos de tu ruta a la hora en que la tomas, Live Activity y widget.
-- Planeador de viajes con transbordos sobre el GTFS.
+- Pantalla "¿Cómo llego?" en la app, sobre `/api/plan`.
 - Reportes de la comunidad: qué tan lleno viene, cierres, buses varados.
 - Otras ciudades cuando publiquen datos abiertos equivalentes.
 

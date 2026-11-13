@@ -3,6 +3,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 npm run check
+# The trip planner's data: the latest official GTFS and OpenStreetMap, served from public/network
+npm run network
 rm -rf dist
 npx expo export -p web 2>&1 | tee /tmp/paradero-export.log
 if grep -qE "Metro error|Error:" /tmp/paradero-export.log; then

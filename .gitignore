@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Planner data, built by scripts/build-network.ts and scripts/build-places.ts
+public/network/
