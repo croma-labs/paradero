@@ -41,3 +41,8 @@ example
 # generated native folders
 /ios
 /android
+
+# Local only (not part of upstream Paradero)
+/RutaViva/
+modules/**/android/build/
+modules/**/android/.gradle/
