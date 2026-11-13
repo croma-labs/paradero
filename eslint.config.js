@@ -7,4 +7,8 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  {
+    // The MCP SDK publishes its subpaths through a wildcard export map that this resolver can't read. tsc still checks them.
+    rules: { 'import/no-unresolved': ['error', { ignore: ['^@modelcontextprotocol/sdk/'] }] },
+  },
 ]);

@@ -89,8 +89,23 @@ La llave de la API vive solo en el servidor. Cada respuesta se comparte unos seg
 | `GET /api/stops/:id` | Paradero, próximos buses, buses en camino y novedades |
 | `GET /api/routes/:id` | Recorrido, paradas, buses en vía y novedades |
 | `GET /api/health` | Si TransMilenio está publicando en vivo |
+| `POST /api/mcp` | Lo mismo, para asistentes de IA (ver abajo) |
 
 Expo SDK 58 · Expo Router con pestañas nativas · Liquid Glass · MapLibre · TanStack Query · SQLite local · Zod · con la identidad de Croma (Geist, Geist Mono y Victor Mono), en claro y oscuro.
+
+### Desde tu asistente de IA
+
+Paradero también habla [MCP](https://modelcontextprotocol.io), el protocolo abierto con el que Claude, ChatGPT, Cursor y otros asistentes usan herramientas. Agrega `https://paradero.expo.app/api/mcp` como conector remoto y pregúntale en tus palabras: "¿en cuánto pasa el K635 por la 72?".
+
+| Herramienta | Qué hace |
+| --- | --- |
+| `find_nearby_stops` | Paraderos y estaciones cerca de un punto |
+| `search` | Rutas y paraderos por código o nombre |
+| `get_stop` | Próximos buses, buses en camino y novedades de un paradero |
+| `get_route` | Paradas, horario y buses en vía de una ruta |
+| `feed_status` | Si TransMilenio está publicando en vivo |
+
+Son las mismas funciones y reglas de caché que usa la app, solo de lectura y sin cuenta. Las respuestas dicen si cada hora es en vivo o del horario, y el asistente recibe la instrucción de decirlo. Las coordenadas se redondean a una cuadra antes de consultar.
 
 ## Lo que sigue
 
