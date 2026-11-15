@@ -54,12 +54,18 @@ export function describeRoute(input: {
   };
 }
 
-/** One entry per code a rider would recognise, keeping the everyday service over its Sunday or holiday twin. */
-export function dedupeRoutes(routes: RouteRef[]): RouteRef[] {
+/** One entry per system and code a rider would recognise, keeping everyday service and, when weekly trips are known, the busier route. */
+export function dedupeRoutes(routes: RouteRef[], tripsOf?: (route: RouteRef) => number | null | undefined): RouteRef[] {
   const byCode = new Map<string, RouteRef>();
-  for (const route of routes) {
-    const seen = byCode.get(route.code);
-    if (!seen || (seen.variant && !route.variant)) byCode.set(route.code, route);
+  for (const candidate of routes) {
+    const key = `${candidate.system}:${candidate.code}`;
+    const current = byCode.get(key);
+    if (!current) {
+      byCode.set(key, candidate);
+      continue;
+    }
+    const sameTier = (current.variant !== null) === (candidate.variant !== null);
+    if (sameTier ? (tripsOf?.(candidate) ?? 0) > (tripsOf?.(current) ?? 0) : current.variant !== null) byCode.set(key, candidate);
   }
   return [...byCode.values()];
 }
