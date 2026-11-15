@@ -11,6 +11,7 @@ const routeSummary = z.object({
 
 export const stop = z.object({
   stop_id: z.string(),
+  code: nstr,
   name: z.string(),
   kind: z.string().nullable().optional(),
   latitude: z.number(),

@@ -34,6 +34,7 @@ export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | nu
   const walk = distanceText(stop.distanceM);
   const label = [
     t.speech.stop(kind, title, stop.distanceM, stop.routes.length),
+    stop.code ? `(${stop.code})` : null,
     stop.accessible ? t.common.accessible : null,
     stop.routes.slice(0, 5).map((r) => r.code).join(", "),
   ]
@@ -57,6 +58,11 @@ export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | nu
           <Text variant="headline" numberOfLines={large ? undefined : 1} style={{ flexShrink: 1 }}>
             {title}
           </Text>
+          {stop.code && (
+            <Text variant="caption" tone="faint">
+              ({stop.code})
+            </Text>
+          )}
           {stop.accessible && <Icon name={icons.wheelchair} color={p.faint} size="xs" />}
         </View>
         <Text variant="caption" tone="muted" numberOfLines={large ? undefined : 1}>

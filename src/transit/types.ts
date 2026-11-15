@@ -30,6 +30,7 @@ export interface RouteRef {
 
 export interface Stop {
   id: string;
+  code: string | null;
   name: string;
   kind: "station" | "stop";
   lat: number;

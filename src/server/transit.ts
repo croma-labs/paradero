@@ -26,6 +26,7 @@ const aroundCache = cached<z.infer<typeof s.vehicles>>(LIVE_TTL_MS, LIVE_GRACE_M
 function toStop(raw: z.infer<typeof s.stop>): Stop {
   return {
     id: raw.stop_id,
+    code: raw.code ?? null,
     name: raw.name,
     kind: raw.kind === "station" ? "station" : "stop",
     lat: raw.latitude,
