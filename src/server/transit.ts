@@ -71,8 +71,6 @@ export function search(query: string): Promise<SearchResult> {
   });
 }
 
-let feedDown = false;
-
 function within<T>(work: Promise<T>, ms: number, fallback: T): Promise<T> {
   const late = new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms));
   return Promise.race([work.catch(() => fallback), late]);
@@ -84,7 +82,7 @@ function alertsFor(filter: { stop_id: string } | { route: string }): Promise<Ale
 
 export async function stopDetail(stopId: string): Promise<StopDetail | null> {
   const found = stopCache(stopId, () => croma("stop", { stop_id: stopId }, s.stopLookup));
-  const around = found.then((l) => (feedDown ? [] : l.found && l.stop ? within(incomingTo(toStop(l.stop), l.stop.routes.map((r) => r.route_id)), 1500, []) : []));
+  const around = found.then((l) => (l.found && l.stop ? within(incomingTo(toStop(l.stop), l.stop.routes.map((r) => r.route_id)), 1500, []) : []));
   const [lookup, next, alerts, incoming] = await Promise.all([
     found,
     arrivalsCache(stopId, () => croma("stop-arrivals", { stop_id: stopId, limit: 30 }, s.arrivals)),
@@ -94,7 +92,6 @@ export async function stopDetail(stopId: string): Promise<StopDetail | null> {
   if (!lookup.found || !lookup.stop) return null;
   const stop = toStop(lookup.stop);
   const live = isLive(next.as_of, next.live);
-  feedDown = !live;
 
   const arrivals: Arrival[] = next.arrivals.map((a) => {
     const route = describeRoute({ id: a.route_id ?? "", shortName: a.route_code ?? null, longName: a.route_name ?? null, system: a.system ?? null });
@@ -128,6 +125,7 @@ async function incomingTo(stop: Stop, routeIds: string[]): Promise<IncomingBus[]
   const around = await aroundCache(`${stop.lat.toFixed(3)},${stop.lon.toFixed(3)}`, () =>
     croma("vehicles", { latitude: stop.lat, longitude: stop.lon, radius_m: 3000, per_page: 300 }, s.vehicles),
   );
+  if (!isLive(around.as_of, around.live)) return [];
   return around.vehicles
     .filter((v) => v.route_id && serving.has(v.route_id))
     .slice(0, 40)
