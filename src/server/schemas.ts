@@ -54,6 +54,30 @@ export const arrivals = z.object({
   ),
 });
 
+export const departures = z.object({
+  as_of: nstr,
+  found: z.boolean(),
+  stop_id: z.string(),
+  stop_name: nstr,
+  date: z.string(),
+  from_time: z.string(),
+  route: nstr,
+  services: z.array(z.string()).default([]),
+  count: z.number().int(),
+  departures: z.array(
+    z.object({
+      time: z.string(),
+      at: z.string(),
+      minutes_from_now: z.number().nullable(),
+      route_id: z.string(),
+      route_code: nstr,
+      route_name: nstr,
+      system: nstr,
+      stop_id: z.string(),
+    }),
+  ),
+});
+
 export const alerts = z.object({
   alerts: z.array(
     z.object({
@@ -99,7 +123,7 @@ export const route = z.object({
       patterns: z.array(
         z.object({
           trips_per_week: z.number().int(),
-          stops: z.array(z.object({ stop_id: z.string(), name: nstr, latitude: z.number().nullable(), longitude: z.number().nullable() })),
+          stops: z.array(z.object({ stop_id: z.string(), name: nstr, latitude: z.number().nullable(), longitude: z.number().nullable(), offset_seconds: z.number().nullable().optional() })),
           geometry: z.object({ coordinates: z.array(z.array(z.number())) }).nullable(),
         }),
       ),

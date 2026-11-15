@@ -4,7 +4,7 @@ import Animated from "react-native-reanimated";
 
 import { useT } from "@/i18n";
 import { useLargeText } from "@/lib/accessibility";
-import { punctuality, spokenArrival } from "@/lib/format";
+import { clock, punctuality, spokenArrival } from "@/lib/format";
 import { signal, usePalette } from "@/theme/colors";
 import { motion } from "@/theme/motion";
 import { radius, space } from "@/theme/tokens";
@@ -34,6 +34,7 @@ export function ArrivalRow({ arrival, first, index = 0, following = false, onPre
   const large = useLargeText();
   // The next bus says the times are a live estimate; the rows under it only speak up when theirs is something else.
   const plain = arrival.basis === "estimated" && arrival.delaySeconds == null;
+  const schedule = arrival.basis === "scheduled" && arrival.at ? arrival.at : null;
   return (
     <Animated.View entering={motion.appear(Math.min(index, 8) * 40)} layout={motion.layout} style={!first && !following && { borderTopColor: p.separator, borderTopWidth: StyleSheet.hairlineWidth }}>
       <PressableScale
@@ -54,7 +55,13 @@ export function ArrivalRow({ arrival, first, index = 0, following = false, onPre
         </View>
         <View style={styles.when}>
           {plain && arrival.minutes != null && arrival.minutes > 0 && <Dot color={signal.live} size="sm" />}
-          <Minutes value={arrival.minutes} />
+          {schedule ? (
+            <Text variant="headline" weight={500} tabular>
+              {clock(schedule)}
+            </Text>
+          ) : (
+            <Minutes value={arrival.minutes} />
+          )}
         </View>
       </PressableScale>
     </Animated.View>

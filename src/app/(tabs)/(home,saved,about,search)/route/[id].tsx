@@ -20,6 +20,7 @@ import type { MapHandle } from "@/components/transit-map.types";
 import { useT } from "@/i18n";
 import { announce, useAccessibility, useLargeText } from "@/lib/accessibility";
 import { useRoute } from "@/lib/api";
+import { clock } from "@/lib/format";
 import { BOGOTA } from "@/lib/location";
 import { toggleRoute, useIsSaved } from "@/lib/saved";
 import { usePalette } from "@/theme/colors";
@@ -111,13 +112,18 @@ export default function RouteScreen() {
               <Text variant="title" style={styles.heading}>
                 {t.route.stops(data.stops.length)}
               </Text>
+              {data.stops.some((s) => s.at) && (
+                <Text variant="caption" tone="faint" style={styles.schedule}>
+                  {t.feed.scheduled}
+                </Text>
+              )}
               {data.stops.map((s, i) => {
                 const edge = i === 0 || i === data.stops.length - 1;
                 return (
                   <PressableScale
                     key={`${s.id}-${i}`}
                     accessibilityRole="button"
-                    accessibilityLabel={t.route.stopLabel(i + 1, s.name)}
+                    accessibilityLabel={`${t.route.stopLabel(i + 1, s.name)}${s.at ? `, ${clock(s.at)}` : ""}`}
                     onPress={() => router.push({ pathname: "/stop/[id]", params: { id: s.id } })}
                     style={styles.stopRow}>
                     <View style={styles.rail}>
@@ -128,6 +134,11 @@ export default function RouteScreen() {
                     <Text variant={edge ? "headline" : "callout"} weight={edge ? 600 : 400} numberOfLines={large ? undefined : 1} style={{ flex: 1 }}>
                       {s.name}
                     </Text>
+                    {s.at && (
+                      <Text variant="caption" tone="muted" tabular>
+                        {clock(s.at)}
+                      </Text>
+                    )}
                   </PressableScale>
                 );
               })}
@@ -168,6 +179,7 @@ const styles = StyleSheet.create({
   fact: { flex: 1, padding: space[3], borderRadius: radius.lg, borderCurve: "continuous", gap: space[1], borderWidth: StyleSheet.hairlineWidth },
   note: { flexDirection: "row", alignItems: "center", gap: space[3], padding: space[4], borderRadius: radius.lg, borderCurve: "continuous" },
   heading: { marginBottom: space[2] },
+  schedule: { marginTop: -space[1], marginBottom: space[2] },
   stopRow: { flexDirection: "row", alignItems: "center", gap: space[3], minHeight: size.control.md },
   rail: { width: size.icon.md, alignItems: "center", alignSelf: "stretch" },
   line: { width: size.line.rule, flex: 1 },
