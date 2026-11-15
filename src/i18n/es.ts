@@ -165,6 +165,9 @@ export const es = {
     nothingBody: "Prueba solo el código de la ruta, como B10, o una parte del nombre del paradero.",
     routes: "Rutas",
     stops: "Estaciones y paraderos",
+    recents: "Recientes",
+    recentSearches: "búsquedas recientes",
+    recentsCleared: "Borramos tus búsquedas recientes",
   },
 
   about: {
@@ -313,7 +316,7 @@ export const es = {
       },
       {
         title: "Lo que se queda en tu teléfono",
-        body: "Tus paraderos y rutas guardados, sus apodos y tus preferencias de apariencia e idioma viven solo en tu teléfono. Si borras la app, se borran.",
+        body: "Tus paraderos y rutas guardados, sus apodos, las rutas y paraderos que abriste hace poco desde Buscar (los quitas con «Borrar») y tus preferencias de apariencia e idioma viven solo en tu teléfono. Si borras la app, se borran.",
       },
       {
         title: "Reportes",

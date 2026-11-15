@@ -23,7 +23,8 @@ export function StopTile({ kind, tier = "md" }: { kind: Stop["kind"]; tier?: key
   return <Tile tier={tier}>{kind === "station" ? <StationGlyph size={glyph} color={p.text} /> : <StopSignGlyph size={glyph} color={p.text} cut={p.surface} />}</Tile>;
 }
 
-export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | null }) {
+/** `onOpen` runs when the rider opens the stop, before the screen changes. */
+export function StopRow({ stop, nickname, onOpen }: { stop: Stop; nickname?: string | null; onOpen?: () => void }) {
   const p = usePalette();
   const shown = stop.routes.slice(0, 5);
   const more = stop.routes.length - shown.length;
@@ -48,6 +49,7 @@ export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | nu
       onPressIn={() => prefetchStop(stop.id)}
       onPress={() => {
         void Haptics.selectionAsync();
+        onOpen?.();
         router.push({ pathname: "/stop/[id]", params: { id: stop.id } });
       }}
       style={styles.row}>

@@ -7,7 +7,7 @@ import { usePalette } from "@/theme/colors";
 import { layout, space } from "@/theme/tokens";
 
 /** When the policy last changed. Every claim in it must match the code; change both together, and the public copy on transmi.usecroma.com. */
-const UPDATED = "2026-11-08T12:00:00-05:00";
+const UPDATED = "2026-11-12T12:00:00-05:00";
 
 /** The privacy policy, in the same plain words as the app. Linked from Bien público and from the App Store. */
 export default function Privacy() {
