@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const BASE_URL = process.env.CROMA_API_URL ?? "https://api.croma.run";
+const BASE_URL = process.env.CROMA_API_URL?.trim() || "https://api.croma.run";
 const STALE_AFTER_MS = 5 * 60_000;
 
 /** A rider is waiting on the other end, so a slow upstream fails fast instead of hanging the screen. */
