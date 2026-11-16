@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
+import { useCallback } from "react";
 import { Linking, Platform } from "react-native";
 
 import { queryClient } from "./api";
@@ -59,6 +60,9 @@ export async function askForLocation(): Promise<boolean> {
 
 export function useLocation() {
   const query = useQuery({ queryKey: ["location"], queryFn: locate, staleTime: 2 * 60_000, retry: false });
+  const refresh = useCallback(() => {
+    query.refetch();
+  }, [query]);
   const state: LocationState = query.isPending
     ? { status: "loading" }
     : !query.data
@@ -66,5 +70,5 @@ export function useLocation() {
       : inBogota(query.data.lat, query.data.lon)
         ? { status: "ready", ...query.data }
         : { status: "outside" };
-  return { state, retry: askForLocation };
+  return { state, retry: askForLocation, refresh };
 }
