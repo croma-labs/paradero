@@ -6,6 +6,7 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.nfc.NfcAdapter
 import android.os.Build
+import android.provider.Settings
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
 import expo.modules.kotlin.Promise
@@ -73,11 +74,32 @@ class TullaveModule : Module() {
       adapter?.isEnabled == true
     }
 
+    // A phone with NFC turned off can read cards: it only needs the rider to turn it on.
+    Function("status") {
+      val nfc = adapter
+      when {
+        nfc == null -> "missing"
+        !nfc.isEnabled -> "off"
+        else -> "ready"
+      }
+    }
+
+    Function("openSettings") {
+      val activity = appContext.currentActivity ?: return@Function null
+      runCatching { activity.startActivity(Intent(Settings.ACTION_NFC_SETTINGS)) }
+        .onFailure { runCatching { activity.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS)) } }
+      null
+    }
+
     AsyncFunction("read") { _: Prompts, promise: Promise ->
       val activity = appContext.currentActivity
       val nfc = adapter
-      if (activity == null || nfc == null || !nfc.isEnabled) {
+      if (activity == null || nfc == null) {
         promise.reject("unsupported", "This phone cannot read cards.", null)
+        return@AsyncFunction
+      }
+      if (!nfc.isEnabled) {
+        promise.reject("off", "NFC is off.", null)
         return@AsyncFunction
       }
       pending?.reject("cancelled", "cancelled", null)

@@ -202,6 +202,7 @@ export const de: Messages = {
     intro: { ios: "Halte die Karte an die Oberseite deines iPhones und halte sie still, bis es vibriert.", android: "Halte die Karte an die Rückseite des Telefons und halte sie still, bis es vibriert." },
     read: "Meine Karte lesen",
     again: "Erneut lesen",
+    turnOn: "NFC einschalten",
     reading: "Halte die Karte ans Telefon",
     private: "Die Karte wird auf deinem Telefon gelesen. Die Kartennummer verlässt es nicht und wir speichern sie nicht.",
     balance: "Guthaben auf der Karte",
@@ -226,7 +227,8 @@ export const de: Messages = {
       lost: "Die Karte hat sich bewegt. Versuch es nochmal",
     },
     errors: {
-      unsupported: { title: "Dieses Telefon liest keine Karten", body: "Du brauchst ein Telefon mit NFC. Prüfe unter Android, ob NFC in den Einstellungen aktiv ist." },
+      unsupported: { title: "Dieses Telefon liest keine Karten", body: "Du brauchst ein Telefon mit NFC, um die Karte zu lesen." },
+      off: { title: "NFC ist aus", body: "Dein Telefon kann die Karte lesen, sobald NFC an ist. Schalte es in den Einstellungen ein und komm zurück." },
       not_tullave: { title: "Keine TuLlave", body: "Diese Karte hat nicht wie eine TuLlave geantwortet. Versuch es mit deiner TransMilenio-Karte." },
       lost: { title: "Die Karte hat sich bewegt", body: "Halte sie still ans Telefon, bis es vibriert, und versuch es nochmal." },
       timeout: { title: "Karte nicht gefunden", body: "Halte sie näher und ruhig. Nimm sie aus der Hülle, falls sie in einer steckt." },

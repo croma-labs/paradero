@@ -31,6 +31,11 @@ public class TullaveModule: Module {
       NFCTagReaderSession.readingAvailable
     }
 
+    // iOS has no switch for NFC: an iPhone that can read tags always can.
+    Function("status") {
+      NFCTagReaderSession.readingAvailable ? "ready" : "missing"
+    }
+
     AsyncFunction("read") { (prompts: Prompts, promise: Promise) in
       guard NFCTagReaderSession.readingAvailable else {
         promise.reject("unsupported", "This phone cannot read cards.")
