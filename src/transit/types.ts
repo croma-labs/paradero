@@ -101,6 +101,9 @@ export interface RouteDetail {
   /** Every way the route runs, the busiest first: its line and its stops in order. Absent from servers before 0.0.5. */
   patterns?: { path: [number, number][]; stops: string[] }[];
   stops: { id: string; name: string; lat: number; lon: number }[];
+  /** Every direction riders can take under this code, sorted by destination. TransMilenio files each one as its own route. */
+  /** Every direction filed under this route's code, this one included. Absent from servers before the direction switch. */
+  directions?: { id: string; name: string }[];
   buses: Bus[];
   alerts: Alert[];
 }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { useT } from "@/i18n";
 import { useLargeText } from "@/lib/accessibility";
 import { since } from "@/lib/format";
+import { useNow } from "@/lib/tick";
 import { signal, usePalette } from "@/theme/colors";
 import { radius, space } from "@/theme/tokens";
 import type { Feed } from "@/transit/types";
@@ -12,24 +12,16 @@ import { Dot } from "./dot";
 import { Glass } from "./glass";
 import { Text } from "./text";
 
-function useTick(ms: number) {
-  const [, set] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => set((n) => n + 1), ms);
-    return () => clearInterval(t);
-  }, [ms]);
-}
-
 /** Says where every time comes from. Riders forgive old data; they don't forgive being told it is live when it isn't. */
 export function FeedStatus({ feed, floating = false }: { feed: Feed | undefined; floating?: boolean }) {
   const p = usePalette();
   const large = useLargeText();
   const t = useT();
-  useTick(5_000);
+  const now = useNow(5_000);
   if (!feed) return null;
 
   const title = feed.live ? t.feed.live : t.feed.scheduled;
-  const detail = feed.live ? t.feed.updated(since(feed.asOf)) : t.feed.noLiveSince(since(feed.asOf));
+  const detail = feed.live ? t.feed.updated(since(feed.asOf, now)) : t.feed.noLiveSince(since(feed.asOf, now));
   const label = `${title}. ${feed.live ? detail : `${t.feed.notPublishing}. ${detail}`}`;
 
   if (floating) {
@@ -42,7 +34,7 @@ export function FeedStatus({ feed, floating = false }: { feed: Feed | undefined;
           </Text>
           {!large && (
             <Text variant="caption" tone="muted" numberOfLines={1} style={styles.shrink}>
-              {feed.live ? since(feed.asOf) : t.feed.noLive}
+              {feed.live ? since(feed.asOf, now) : t.feed.noLive}
             </Text>
           )}
         </View>

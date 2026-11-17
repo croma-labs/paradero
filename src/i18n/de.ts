@@ -126,6 +126,8 @@ export const de: Messages = {
 
   route: {
     failed: { title: "Diese Linie konnte nicht geladen werden", body: "Prüfe deine Verbindung und versuche es erneut." },
+    direction: "Richtung",
+    toward: (place) => `Nach ${place}`,
     first: "Erster Bus",
     last: "Letzter Bus",
     onRoad: "Unterwegs",

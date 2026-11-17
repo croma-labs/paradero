@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated from "react-native-reanimated";
 import type { SearchBarCommands } from "react-native-screens";
@@ -22,6 +22,8 @@ import { fonts, layout, radius, size, space, type } from "@/theme/tokens";
 const ANDROID = Platform.OS === "android";
 
 const EXAMPLES = ["K635", "B10", "Portal Norte", "Calle 72", "H710", "TransMiCable"];
+/** Search once the rider pauses, not on every letter: each search costs two calls upstream. */
+const TYPING_PAUSE_MS = 300;
 
 export default function Search() {
   const { q } = useLocalSearchParams<{ q?: string }>();
@@ -39,7 +41,12 @@ export default function Search() {
     const t = setTimeout(() => bar.current?.setText(q), 350);
     return () => clearTimeout(t);
   }, [q]);
-  const query = useDeferredValue(text);
+  const [query, setQuery] = useState(text);
+  useEffect(() => {
+    // Clearing the box (or going under two letters) hides the results right away.
+    const timer = setTimeout(() => setQuery(text), text.trim().length < 2 ? 0 : TYPING_PAUSE_MS);
+    return () => clearTimeout(timer);
+  }, [text]);
   const { data, isFetching, isError, refetch } = useSearch(query);
   const typed = query.trim().length >= 2;
   const nothing = data && data.routes.length === 0 && data.stops.length === 0;
@@ -53,6 +60,7 @@ export default function Search() {
   const pick = (value: string) => {
     bar.current?.setText(value);
     setText(value);
+    setQuery(value);
   };
 
   return (

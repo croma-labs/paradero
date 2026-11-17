@@ -64,6 +64,22 @@ export function dedupeRoutes(routes: RouteRef[]): RouteRef[] {
   return [...byCode.values()];
 }
 
+/**
+ * TransMilenio files each direction of a route as its own route: the 1 to Universidades and the 1 to Portal Eldorado
+ * are two ids. dedupeRoutes keeps one per code, so this is how a rider reaches the other one: one entry per destination
+ * under the same code (this route included), the everyday service over its Sunday or holiday twin. Sorted by
+ * destination, so the choices stay in place when the rider switches.
+ */
+export function directionsOf(route: RouteRef, sameCode: RouteRef[]): RouteRef[] {
+  const byName = new Map<string, RouteRef>();
+  for (const other of sameCode) {
+    if (other.feedCode !== route.feedCode || other.id === route.id || other.name === route.name) continue;
+    const seen = byName.get(other.name);
+    if (!seen || (seen.variant && !other.variant)) byName.set(other.name, other);
+  }
+  return [route, ...byName.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
+}
+
 /** Splits letters from digits so a screen reader says "K 635" instead of a made-up word. */
 export function sayable(code: string): string {
   return code.replace(/([A-Z]+)(\d+)/g, "$1 $2");

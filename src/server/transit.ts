@@ -1,5 +1,5 @@
 import { humanizeAlert } from "@/transit/alerts";
-import { dedupeRoutes, describeRoute } from "@/transit/codes";
+import { dedupeRoutes, describeRoute, directionsOf } from "@/transit/codes";
 import type { Alert, Arrival, Bus, Feed, Health, IncomingBus, Nearby, RouteDetail, SearchResult, Stop, StopDetail } from "@/transit/types";
 import type { z } from "zod";
 
@@ -153,8 +153,10 @@ async function loadRoute(routeId: string) {
   const main = [...r.patterns].sort((a, b) => b.trips_per_week - a.trips_per_week)[0];
   const ref = describeRoute({ id: r.route_id, shortName: r.short_name ?? null, longName: r.long_name ?? null, system: r.system ?? null });
 
-  const hours = await within(croma("routes-search", { query: r.short_name ?? "", per_page: 10 }, s.routesSearch), 1500, null);
+  // The same search gives the operating hours and the other directions of this code.
+  const hours = await within(croma("routes-search", { query: r.short_name ?? "", per_page: 20 }, s.routesSearch), 1500, null);
   const own = hours?.routes.find((x) => x.route_id === r.route_id);
+  const sameCode = (hours?.routes ?? []).map((x) => describeRoute({ id: x.route_id, shortName: x.short_name ?? null, longName: x.long_name ?? null, system: x.system ?? null }));
 
   return {
     route: {
@@ -171,6 +173,7 @@ async function loadRoute(routeId: string) {
     stops: (main?.stops ?? []).flatMap((st) =>
       st.latitude == null || st.longitude == null ? [] : [{ id: st.stop_id, name: st.name ?? "Paradero", lat: st.latitude, lon: st.longitude }],
     ),
+    directions: directionsOf(ref, sameCode).map((d) => ({ id: d.id, name: d.name })),
   };
 }
 

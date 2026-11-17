@@ -5,6 +5,8 @@ import Animated from "react-native-reanimated";
 import { useT } from "@/i18n";
 import { useLargeText } from "@/lib/accessibility";
 import { punctuality, spokenArrival } from "@/lib/format";
+import { useNow } from "@/lib/tick";
+import { minutesLeft } from "@/transit/time";
 import { signal, usePalette } from "@/theme/colors";
 import { motion } from "@/theme/motion";
 import { radius, space } from "@/theme/tokens";
@@ -29,17 +31,19 @@ export function Pace({ arrival }: { arrival: Arrival }) {
 }
 
 export function ArrivalRow({ arrival, first, index = 0, following = false, onPress }: { arrival: Arrival; first?: boolean; index?: number; following?: boolean; onPress?: () => void }) {
+  const now = useNow(15_000);
   const p = usePalette();
   const t = useT();
   const large = useLargeText();
   // The next bus says the times are a live estimate; the rows under it only speak up when theirs is something else.
   const plain = arrival.basis === "estimated" && arrival.delaySeconds == null;
+  const minutes = minutesLeft(arrival, now);
   return (
     <Animated.View entering={motion.appear(Math.min(index, 8) * 40)} layout={motion.layout} style={!first && !following && { borderTopColor: p.separator, borderTopWidth: StyleSheet.hairlineWidth }}>
       <PressableScale
         accessible
         accessibilityRole={onPress ? "button" : undefined}
-        accessibilityLabel={spokenArrival(arrival)}
+        accessibilityLabel={spokenArrival(arrival, now)}
         accessibilityHint={onPress && !following ? t.stop.followHint : undefined}
         accessibilityState={{ selected: following }}
         enabled={!!onPress}
@@ -53,8 +57,8 @@ export function ArrivalRow({ arrival, first, index = 0, following = false, onPre
           {!plain && <Pace arrival={arrival} />}
         </View>
         <View style={styles.when}>
-          {plain && arrival.minutes != null && arrival.minutes > 0 && <Dot color={signal.live} size="sm" />}
-          <Minutes value={arrival.minutes} />
+          {plain && minutes != null && minutes > 0 && <Dot color={signal.live} size="sm" />}
+          <Minutes value={minutes} />
         </View>
       </PressableScale>
     </Animated.View>

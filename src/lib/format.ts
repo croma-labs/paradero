@@ -1,5 +1,6 @@
 import { t, tag } from "@/i18n";
 import { sayable } from "@/transit/codes";
+import { minutesLeft } from "@/transit/time";
 import type { Arrival, Feed } from "@/transit/types";
 
 const ZONE = "America/Bogota";
@@ -44,8 +45,8 @@ export function spokenRoute(aliases: string[]): string {
   return t().speech.route(aliases.map(sayable).join(t().speech.or));
 }
 
-export function spokenArrival(a: Arrival): string {
-  return t().speech.arrival(spokenRoute(a.aliases), a.name, spokenWhen(a.minutes), punctuality(a).text);
+export function spokenArrival(a: Arrival, now = Date.now()): string {
+  return t().speech.arrival(spokenRoute(a.aliases), a.name, spokenWhen(minutesLeft(a, now)), punctuality(a).text);
 }
 
 export function clock(iso: string): string {

@@ -4,6 +4,8 @@ import { StyleSheet, View } from "react-native";
 import { useT } from "@/i18n";
 import { useLargeText } from "@/lib/accessibility";
 import { clock, spokenArrival } from "@/lib/format";
+import { useNow } from "@/lib/tick";
+import { minutesLeft } from "@/transit/time";
 import { usePalette } from "@/theme/colors";
 import { radius, size, space } from "@/theme/tokens";
 import type { Arrival } from "@/transit/types";
@@ -15,6 +17,7 @@ import { Text } from "./text";
 
 /** The one answer most riders open the app for, set large and quiet. */
 export function NextBus({ arrival, following = false, onPress }: { arrival: Arrival; following?: boolean; onPress?: () => void }) {
+  const now = useNow(15_000);
   const p = usePalette();
   const large = useLargeText();
   const t = useT();
@@ -23,7 +26,7 @@ export function NextBus({ arrival, following = false, onPress }: { arrival: Arri
     <PressableScale
       accessible
       accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={t.speech.nextBus(`${spokenArrival(arrival)}${at ? ` ${at}.` : ""}`)}
+      accessibilityLabel={t.speech.nextBus(`${spokenArrival(arrival, now)}${at ? ` ${at}.` : ""}`)}
       accessibilityHint={onPress && !following ? t.stop.followHint : undefined}
       accessibilityState={{ selected: following }}
       enabled={!!onPress}
@@ -47,7 +50,7 @@ export function NextBus({ arrival, following = false, onPress }: { arrival: Arri
           </Text>
           <Pace arrival={arrival} />
         </View>
-        <Minutes value={arrival.minutes} size="lg" />
+        <Minutes value={minutesLeft(arrival, now)} size="lg" />
       </View>
     </PressableScale>
   );

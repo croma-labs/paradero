@@ -126,6 +126,8 @@ export const zh: Messages = {
 
   route: {
     failed: { title: "无法加载此线路", body: "请检查网络连接后重试。" },
+    direction: "方向",
+    toward: (place) => `开往${place}`,
     first: "首班车",
     last: "末班车",
     onRoad: "运行中",
