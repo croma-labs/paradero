@@ -24,7 +24,7 @@ export function wayTowards(patterns: { path: LngLat[] }[], stop: { lat: number; 
     .filter((p) => p.path.length > 1)
     .map((p) => {
       const path = measure(p.path);
-      return { line: p.path, path, stop: project(path, [stop.lon, stop.lat]) };
+      return { line: p.path, path, stop: project(path, [stop.lon, stop.lat], true) };
     })
     .filter((c) => c.stop && c.stop.offset <= STOP_ON_LINE_M);
   if (bus) {

@@ -22,8 +22,12 @@ export function measure(points: LngLat[]): MeasuredPath {
   return { points, along, length: along[along.length - 1] ?? 0 };
 }
 
-/** The point of the path nearest `at`: how far along it lies and how far `at` is from the line. */
-export function project(path: MeasuredPath, at: LngLat): { along: number; offset: number } | null {
+/**
+ * The point of the path nearest `at`: how far along it lies and how far `at` is from the line.
+ * `later` breaks a tie toward the end, for a stop where a loop starts and ends: buses arrive there at the end.
+ * A bus keeps the earlier point, so one leaving the start of a loop does not jump to its end.
+ */
+export function project(path: MeasuredPath, at: LngLat, later = false): { along: number; offset: number } | null {
   if (path.points.length < 2) return null;
   const cos = Math.cos((at[1] * Math.PI) / 180);
   const x = (p: LngLat) => (p[0] - at[0]) * METRES_PER_DEGREE * cos;
@@ -36,7 +40,7 @@ export function project(path: MeasuredPath, at: LngLat): { along: number; offset
     const length2 = (bx - ax) ** 2 + (by - ay) ** 2;
     const t = length2 === 0 ? 0 : Math.min(1, Math.max(0, -(ax * (bx - ax) + ay * (by - ay)) / length2));
     const offset = Math.hypot(ax + t * (bx - ax), ay + t * (by - ay));
-    if (!best || offset < best.offset) best = { along: path.along[i]! + t * (path.along[i + 1]! - path.along[i]!), offset };
+    if (!best || offset < best.offset || (later && offset === best.offset)) best = { along: path.along[i]! + t * (path.along[i + 1]! - path.along[i]!), offset };
   }
   return best;
 }

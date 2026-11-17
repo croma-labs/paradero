@@ -14,14 +14,14 @@ const MINUTE = 60_000;
 const LIVE_GRACE_MS = 90_000;
 /** Croma picks up each new TransMilenio batch within seconds, so live answers are shared for only a few. */
 const LIVE_TTL_MS = 3_000;
-const nearbyCache = cached<Nearby>(5 * MINUTE);
-const searchCache = cached<SearchResult>(30 * MINUTE);
-const stopCache = cached<z.infer<typeof s.stopLookup>>(6 * 60 * MINUTE);
-const arrivalsCache = cached<z.infer<typeof s.arrivals>>(LIVE_TTL_MS, LIVE_GRACE_MS);
-const alertsCache = cached<Alert[]>(2 * MINUTE);
-const routeCache = cached<Omit<RouteDetail, "buses" | "feed" | "alerts">>(60 * MINUTE);
-const busesCache = cached<{ feed: Feed; buses: Bus[] }>(LIVE_TTL_MS, LIVE_GRACE_MS);
-const aroundCache = cached<z.infer<typeof s.vehicles>>(LIVE_TTL_MS, LIVE_GRACE_MS);
+const nearbyCache = cached<Nearby>("nearby", 5 * MINUTE);
+const searchCache = cached<SearchResult>("search", 30 * MINUTE);
+const stopCache = cached<z.infer<typeof s.stopLookup>>("stop", 6 * 60 * MINUTE);
+const arrivalsCache = cached<z.infer<typeof s.arrivals>>("arrivals", LIVE_TTL_MS, LIVE_GRACE_MS);
+const alertsCache = cached<Alert[]>("alerts", 2 * MINUTE);
+const routeCache = cached<Omit<RouteDetail, "buses" | "feed" | "alerts">>("route", 60 * MINUTE);
+const busesCache = cached<{ feed: Feed; buses: Bus[] }>("buses", LIVE_TTL_MS, LIVE_GRACE_MS);
+const aroundCache = cached<z.infer<typeof s.vehicles>>("around", LIVE_TTL_MS, LIVE_GRACE_MS);
 
 function toStop(raw: z.infer<typeof s.stop>): Stop {
   return {

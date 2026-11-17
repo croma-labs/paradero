@@ -51,14 +51,20 @@ export function isLive(asOf: string, live: boolean | undefined): boolean {
   return Date.now() - Date.parse(asOf) <= STALE_AFTER_MS;
 }
 
-/** One answer per key for `ttlMs`, shared by every rider on this instance, joining a request already in flight. */
-export function cached<T>(ttlMs: number, graceMs = 0) {
-  const entries = new Map<string, { at: number; value: Promise<T>; last?: { at: number; value: T } }>();
+type Entry<T> = { at: number; value: Promise<T>; last?: { at: number; value: T } };
+
+// `expo start` evaluates an API route again for every request, which would start each cache empty and send every call to Croma.
+// Kept on globalThis, the caches live as long as the process, as they do in a deployed build.
+const stores = ((globalThis as { __paraderoCaches?: Map<string, Map<string, unknown>> }).__paraderoCaches ??= new Map());
+
+/** One answer per key for `ttlMs`, shared by every rider on this instance, joining a request already in flight. `name` keeps one cache apart from another. */
+export function cached<T>(name: string, ttlMs: number, graceMs = 0) {
+  const entries = (stores.get(name) ?? stores.set(name, new Map()).get(name)!) as Map<string, Entry<T>>;
   return (key: string, load: () => Promise<T>): Promise<T> => {
     const hit = entries.get(key);
     if (hit && Date.now() - hit.at < ttlMs) return hit.value;
     const last = hit?.last;
-    const entry: { at: number; value: Promise<T>; last?: { at: number; value: T } } = { at: Date.now(), value: Promise.resolve(undefined as T), last };
+    const entry: Entry<T> = { at: Date.now(), value: Promise.resolve(undefined as T), last };
     entry.value = load().then(
       (value) => {
         entry.last = { at: Date.now(), value };

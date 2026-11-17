@@ -13,10 +13,14 @@ export class ApiError extends Error {
   }
 }
 
+const retry = (count: number, error: Error) => !(error instanceof ApiError && error.status < 500) && count < 2;
+// For queries that refresh on their own: a 504 is Croma taking too long, and asking again at once only adds paid calls to a struggling source. The next refresh tries anyway.
+const liveRetry = (count: number, error: Error) => !(error instanceof ApiError && error.status === 504) && retry(count, error);
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: (count, error) => !(error instanceof ApiError && error.status < 500) && count < 2,
+      retry,
       staleTime: 10_000,
     },
   },
@@ -87,11 +91,11 @@ export function knownStop(id: string | undefined): Stop | undefined {
 }
 
 export function useStop(id: string | undefined) {
-  return useQuery({ ...stopQuery(id ?? ""), enabled: !!id, refetchInterval: LIVE });
+  return useQuery({ ...stopQuery(id ?? ""), enabled: !!id, refetchInterval: LIVE, retry: liveRetry });
 }
 
 export function useRoute(id: string | undefined) {
-  return useQuery({ ...routeQuery(id ?? ""), enabled: !!id, refetchInterval: LIVE });
+  return useQuery({ ...routeQuery(id ?? ""), enabled: !!id, refetchInterval: LIVE, retry: liveRetry });
 }
 
 export async function sendReport(input: ReportInput): Promise<ReportResult> {
