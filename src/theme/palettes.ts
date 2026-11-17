@@ -20,7 +20,6 @@ export interface Palette {
   shadow: string;
   shadowSoft: string;
   shadowUp: string;
-  fadeTo: string;
 }
 
 /** Signal colours, used only as small dots, never as fills. */
@@ -30,44 +29,42 @@ export const signal = {
   alert: "#E5484D",
 };
 
-/** Croma's light theme, from usecroma.com: warm paper, near-black ink, warm greys. */
+/** Trazo light: map paper, ink lines, warm greys. Colour on screen is kept for the network. */
 export const LIGHT: Palette = {
-  background: "#FDFCFC",
-  surface: "#F5F3F1",
-  elevated: "#FFFFFF",
-  fill: "rgba(9,9,11,0.04)",
-  fillStrong: "rgba(9,9,11,0.08)",
-  text: "#09090B",
-  muted: "#59544F",
-  faint: "#706C67",
-  separator: "#EBE8E4",
-  border: "#EBE8E4",
-  ink: "#09090B",
-  onInk: "#FDFCFC",
-  shadow: "0 16px 32px -12px rgba(9,9,11,0.16)",
-  shadowSoft: "0 4px 16px -4px rgba(9,9,11,0.08)",
-  shadowUp: "0 -1px 2px rgba(9,9,11,0.05), 0 -14px 36px -14px rgba(9,9,11,0.24)",
-  fadeTo: "#948F88",
+  background: "#F0ECE2",
+  surface: "#E4DFD2",
+  elevated: "#FFFDF8",
+  fill: "rgba(31,31,35,0.05)",
+  fillStrong: "rgba(31,31,35,0.10)",
+  text: "#1F1F23",
+  muted: "#3E3D39",
+  faint: "#5E5C55",
+  separator: "#DAD4C6",
+  border: "#CFC8B8",
+  ink: "#1F1F23",
+  onInk: "#F7F5EF",
+  shadow: "0 16px 32px -12px rgba(31,31,35,0.14)",
+  shadowSoft: "0 2px 8px -2px rgba(31,31,35,0.08)",
+  shadowUp: "0 -1px 2px rgba(31,31,35,0.05), 0 -14px 36px -14px rgba(31,31,35,0.20)",
 };
 
-/** Croma's dark theme: surfaces step up in lightness as they come forward, hairlines instead of shadows. */
+/** Trazo night: the same map after dark. Paper and ink swap; line colours stay. */
 export const DARK: Palette = {
-  background: "#09090B",
-  surface: "#18181B",
-  elevated: "#131316",
-  fill: "rgba(250,250,250,0.05)",
-  fillStrong: "rgba(250,250,250,0.10)",
-  text: "#FAFAFA",
-  muted: "#A1A1AA",
-  faint: "#82828A",
-  separator: "#27272A",
-  border: "#27272A",
-  ink: "#FAFAFA",
-  onInk: "#09090B",
+  background: "#16171B",
+  surface: "#1F2026",
+  elevated: "#1B1C21",
+  fill: "rgba(240,236,226,0.05)",
+  fillStrong: "rgba(240,236,226,0.10)",
+  text: "#F0ECE2",
+  muted: "#CFC8B8",
+  faint: "#A3A094",
+  separator: "#2A2C33",
+  border: "#3A3C45",
+  ink: "#F0ECE2",
+  onInk: "#16171B",
   shadow: "0 1px 2px rgba(0,0,0,0.6)",
   shadowSoft: "0 1px 2px rgba(0,0,0,0.5)",
   shadowUp: "inset 0 1px 0 rgba(255,255,255,0.07), 0 -14px 36px -12px rgba(0,0,0,0.85)",
-  fadeTo: "#605F5F",
 };
 
 /** High contrast, light: pure black on white, no fades, borders you can see. */
@@ -87,7 +84,6 @@ export const HIGH_LIGHT: Palette = {
   shadow: "0 0 0 rgba(0,0,0,0)",
   shadowSoft: "0 0 0 rgba(0,0,0,0)",
   shadowUp: "0 0 0 rgba(0,0,0,0)",
-  fadeTo: "#000000",
 };
 
 /** High contrast, dark: pure white on black, no fades, borders you can see. */
@@ -107,7 +103,6 @@ export const HIGH_DARK: Palette = {
   shadow: "0 0 0 rgba(0,0,0,0)",
   shadowSoft: "0 0 0 rgba(0,0,0,0)",
   shadowUp: "0 0 0 rgba(0,0,0,0)",
-  fadeTo: "#FFFFFF",
 };
 
 /** Over photography the theme does not apply: the image sets the contrast. */
@@ -118,14 +113,20 @@ export const photo = {
   scrim: "#000000",
 } as const;
 
-/** What each part of the network is called, plus a muted tone for its dot. */
-export const systems: Record<System, { label: string; dot: string }> = {
-  troncal: { label: "TransMilenio", dot: "#C8323C" },
-  dual: { label: "Dual", dot: "#D9733A" },
-  zonal_urbano: { label: "SITP zonal", dot: "#3D63C9" },
-  alimentador: { label: "Alimentador", dot: "#4E9A55" },
-  zonal_complementario: { label: "Complementario", dot: "#C99A2E" },
-  zonal_especial: { label: "Especial", dot: "#7C62B0" },
-  transmicable: { label: "TransMiCable", dot: "#2C8C84" },
-  other: { label: "Otro", dot: "#8A93A6" },
+/**
+ * Each part of the network is a line on the map. `dot` is the bright line colour for marks and the map;
+ * `fill` is the deep tone a route badge sits on, dark enough for `lineText` to pass AA.
+ */
+export const systems: Record<System, { label: string; dot: string; fill: string }> = {
+  troncal: { label: "TransMilenio", dot: "#E2403A", fill: "#B42A25" },
+  dual: { label: "Dual", dot: "#F2892B", fill: "#A3500F" },
+  zonal_urbano: { label: "SITP zonal", dot: "#2F6BD6", fill: "#1F4FA8" },
+  alimentador: { label: "Alimentador", dot: "#3FA45B", fill: "#2A7A41" },
+  zonal_complementario: { label: "Complementario", dot: "#F2C230", fill: "#7A5A00" },
+  zonal_especial: { label: "Especial", dot: "#7B52C1", fill: "#5E3A9E" },
+  transmicable: { label: "TransMiCable", dot: "#1D9C9C", fill: "#12706F" },
+  other: { label: "Otro", dot: "#8A8778", fill: "#5E5C55" },
 };
+
+/** Text and marks on a route badge's line colour, the same in every theme. */
+export const lineText = "#FFFDF8";

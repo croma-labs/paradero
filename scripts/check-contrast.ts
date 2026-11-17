@@ -1,4 +1,4 @@
-import { DARK, HIGH_DARK, HIGH_LIGHT, LIGHT, type Palette } from "../src/theme/palettes.ts";
+import { DARK, HIGH_DARK, HIGH_LIGHT, LIGHT, lineText, systems, type Palette } from "../src/theme/palettes.ts";
 
 type Rgb = [number, number, number];
 
@@ -33,7 +33,6 @@ const RULES: { fg: keyof Palette; bg: keyof Palette; min: number; why: string }[
     { fg: "faint" as const, bg, min: 4.5, why: "labels and hints" },
   ]),
   { fg: "onInk", bg: "ink", min: 4.5, why: "text on primary buttons" },
-  { fg: "fadeTo", bg: "background", min: 3, why: "the faded end of large titles" },
 ];
 
 const HIGH_RULES = RULES.map((r) => ({ ...r, min: r.min === 4.5 ? 7 : 4.5 }));
@@ -52,8 +51,14 @@ const failures = palettes.flatMap(({ name, palette, rules }) =>
     .map((r) => `  ${r.name}: ${r.fg} on ${r.bg} is ${r.value.toFixed(2)}:1, needs ${r.min}:1 (${r.why})`),
 );
 
+/** Route codes sit on their line's deep tone in every theme. */
+for (const [name, { fill }] of Object.entries(systems)) {
+  const value = ratio(lineText, fill);
+  if (value < 4.5) failures.push(`  route badge: ${name} code on ${fill} is ${value.toFixed(2)}:1, needs 4.5:1`);
+}
+
 if (failures.length) {
   console.error(`Colours below WCAG 2.2 AA (AAA in high contrast):\n\n${failures.join("\n")}`);
   process.exit(1);
 }
-console.log(`Contrast: ${palettes.length} palettes pass WCAG 2.2 AA, high contrast passes AAA.`);
+console.log(`Contrast: ${palettes.length} palettes pass WCAG 2.2 AA, high contrast passes AAA, route badges pass AA.`);

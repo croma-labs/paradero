@@ -5,7 +5,7 @@ import { useContrast } from "@/lib/appearance";
 
 import { DARK, HIGH_DARK, HIGH_LIGHT, LIGHT, type Palette as Colors } from "./palettes";
 
-export { photo, signal, systems } from "./palettes";
+export { lineText, photo, signal, systems } from "./palettes";
 
 export const palettes = { light: LIGHT, dark: DARK, highLight: HIGH_LIGHT, highDark: HIGH_DARK } as const;
 

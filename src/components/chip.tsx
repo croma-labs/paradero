@@ -28,7 +28,7 @@ export function Chip({
       accessibilityState={radio ? { checked: selected } : { selected }}
       onPress={onPress}
       hitSlop={HIT}
-      style={[styles.chip, selected ? { backgroundColor: p.ink } : { borderColor: p.high ? p.border : p.separator, borderWidth: p.high ? size.line.hair : StyleSheet.hairlineWidth }]}>
+      style={[styles.chip, selected ? { backgroundColor: p.ink } : { backgroundColor: p.elevated, borderColor: p.border, borderWidth: size.line.hair }]}>
       <Text variant="callout" weight={selected ? 600 : 500} tone={selected ? "inverse" : "default"}>
         {label}
       </Text>

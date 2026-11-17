@@ -18,12 +18,12 @@ interface ButtonProps {
   accessibilityHint?: string;
 }
 
-/** The one button. Primary is ink, secondary is outlined, quiet is text only. */
+/** The one button. Primary is ink, secondary is an ink outline, quiet is text only. */
 export function Button({ label, onPress, variant = "primary", height = "lg", hug, disabled, role = "button", accessibilityLabel, accessibilityHint }: ButtonProps) {
   const p = usePalette();
   const look = {
     primary: { backgroundColor: p.ink },
-    secondary: { borderColor: p.separator, borderWidth: StyleSheet.hairlineWidth },
+    secondary: { borderColor: p.ink, borderWidth: size.line.rule },
     quiet: {},
   }[variant];
 

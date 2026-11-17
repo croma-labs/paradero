@@ -90,7 +90,7 @@ La llave de la API vive solo en el servidor. Cada respuesta se comparte unos seg
 | `GET /api/routes/:id` | Recorrido, paradas, buses en vía y novedades |
 | `GET /api/health` | Si TransMilenio está publicando en vivo |
 
-Expo SDK 58 · Expo Router con pestañas nativas · Liquid Glass · MapLibre · TanStack Query · SQLite local · Zod · con la identidad de Croma (Geist, Geist Mono y Victor Mono), en claro y oscuro.
+Expo SDK 58 · Expo Router con pestañas nativas · Liquid Glass · MapLibre · TanStack Query · SQLite local · Zod · con la identidad Trazo (Familjen Grotesk, Instrument Sans, DM Mono) y el marco de Croma (Victor Mono), en claro y oscuro.
 
 ## Lo que sigue
 
@@ -113,7 +113,7 @@ La construimos con la gente que la usa. Si diseñas, programas, haces UX, accesi
 
 [MIT](LICENSE). La elegimos porque es la forma más simple de que una entidad pública o sus contratistas adopten el código sin trámites, y porque un bien común no debería pedir permiso para usarse.
 
-Las fuentes Geist, Geist Mono y Victor Mono vienen con la [SIL Open Font License 1.1](https://openfontlicense.org).
+Las fuentes Familjen Grotesk, Instrument Sans, DM Mono y Victor Mono vienen con la [SIL Open Font License 1.1](https://openfontlicense.org).
 
 Los datos de transporte son de TransMilenio S.A. Los mapas son de [CARTO](https://carto.com/attributions) y © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright). Las fotos del onboarding son imágenes generadas con IA, no personas reales.
 

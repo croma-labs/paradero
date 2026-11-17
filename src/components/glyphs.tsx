@@ -51,3 +51,18 @@ export function CableGlyph({ size = 24, color }: GlyphProps) {
     </Svg>
   );
 }
+
+const TAB_PATHS = {
+  saved: "M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z",
+  about: "M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.1a4.3 4.3 0 0 1 7.5 2.7C19.5 15.4 12 20 12 20z",
+  search: "M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.3 15.3 20 20",
+} as const;
+
+/** Web tab icons (native tabs use system symbols). Outlined at rest, filled when the tab is open; search stays a stroke. */
+export function TabGlyph({ name, size = 24, color, filled = false }: { name: keyof typeof TAB_PATHS; size?: number; color: string; filled?: boolean }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d={TAB_PATHS[name]} fill={filled && name !== "search" ? color : "none"} stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}

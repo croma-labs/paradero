@@ -1,5 +1,6 @@
-import { Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold, useFonts } from "@expo-google-fonts/geist";
-import { GeistMono_500Medium } from "@expo-google-fonts/geist-mono";
+import { DMMono_500Medium } from "@expo-google-fonts/dm-mono";
+import { FamiljenGrotesk_400Regular, FamiljenGrotesk_500Medium, FamiljenGrotesk_600SemiBold, FamiljenGrotesk_700Bold } from "@expo-google-fonts/familjen-grotesk";
+import { InstrumentSans_400Regular, InstrumentSans_500Medium, InstrumentSans_600SemiBold, InstrumentSans_700Bold, useFonts } from "@expo-google-fonts/instrument-sans";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -15,7 +16,7 @@ import "@/lib/accessibility";
 import "@/lib/appearance";
 import { useOnboarded } from "@/lib/onboarding";
 import { usePalette } from "@/theme/colors";
-import { fonts } from "@/theme/tokens";
+import { displayFonts, fonts } from "@/theme/tokens";
 
 LogBox.ignoreLogs(["[Reanimated] Dependencies should only be used on the web", "Sending `onAnimatedValueUpdate`"]);
 
@@ -27,11 +28,15 @@ export default function RootLayout() {
   const onboarded = useOnboarded();
   const t = useT();
   const [loaded, failed] = useFonts({
-    Geist_400Regular,
-    Geist_500Medium,
-    Geist_600SemiBold,
-    Geist_700Bold,
-    GeistMono_500Medium,
+    InstrumentSans_400Regular,
+    InstrumentSans_500Medium,
+    InstrumentSans_600SemiBold,
+    InstrumentSans_700Bold,
+    FamiljenGrotesk_400Regular,
+    FamiljenGrotesk_500Medium,
+    FamiljenGrotesk_600SemiBold,
+    FamiljenGrotesk_700Bold,
+    DMMono_500Medium,
     "VictorMono-Bold": require("../../assets/fonts/VictorMono-Bold.ttf"),
   });
 
@@ -58,7 +63,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={theme}>
           <StatusBar style="auto" />
-          <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal", headerBackButtonMenuEnabled: false, headerTitleStyle: { fontFamily: fonts[600] } }}>
+          <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal", headerBackButtonMenuEnabled: false, headerTitleStyle: { fontFamily: displayFonts[600] } }}>
             <Stack.Protected guard={onboarded}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Paradero" }} />
               <Stack.Screen name="report" options={{ presentation: "formSheet", sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false }} />

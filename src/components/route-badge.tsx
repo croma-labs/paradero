@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 
 import { useT } from "@/i18n";
 import { spokenCode } from "@/lib/format";
-import { systems, usePalette } from "@/theme/colors";
+import { lineText, systems, usePalette } from "@/theme/colors";
 import { fonts, size as sizes } from "@/theme/tokens";
 import type { System } from "@/transit/types";
 
@@ -42,7 +42,8 @@ function mark(shape: Shape, d: number, color: string): ViewStyle {
 }
 
 /**
- * Neutral pill with a small mark for the part of the network, so a list of routes stays calm.
+ * The route on its line's colour, like a line badge on a metro map, with a mark for the part of the network
+ * so it reads without colour too. The next bus to arrive (`solid`) turns ink and keeps its line colour in the mark.
  * Inside a row the row speaks for it; on its own (`labelled`) it says the route and the network.
  */
 export function RouteBadge({
@@ -70,10 +71,11 @@ export function RouteBadge({
       style={[
         styles.badge,
         { paddingHorizontal: s.padX, paddingVertical: s.padY, borderRadius: s.r, gap: s.dot },
-        solid ? { backgroundColor: p.ink } : { borderColor: p.high ? p.border : p.separator, borderWidth: p.high ? StyleSheet.hairlineWidth * 3 : StyleSheet.hairlineWidth * 2 },
+        { backgroundColor: solid ? p.ink : systems[system].fill },
+        p.high && { borderColor: p.border, borderWidth: sizes.line.hair },
       ]}>
-      <View style={mark(SHAPES[system], s.dot, systems[system].dot)} />
-      <Text maxFontSizeMultiplier={2} numberOfLines={1} style={[styles.text, { color: solid ? p.onInk : p.text, fontSize: s.font, lineHeight: s.font * 1.2 }]}>
+      <View style={mark(SHAPES[system], s.dot, solid ? systems[system].dot : lineText)} />
+      <Text maxFontSizeMultiplier={2} numberOfLines={1} style={[styles.text, { color: solid ? p.onInk : lineText, fontSize: s.font, lineHeight: s.font * 1.2 }]}>
         {code}
       </Text>
     </View>

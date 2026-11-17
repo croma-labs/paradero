@@ -5,7 +5,7 @@ import { fonts } from "@/theme/tokens";
 
 const DETAIL = { headerLargeTitle: false, headerTransparent: true, title: "" } as const;
 
-/** The stack inside each tab: its first screen under a large Geist title, or bare when it has none, and the stops and routes opened from it. */
+/** The stack inside each tab: its first screen under a large title, or bare when it has none, and the stops and routes opened from it. */
 export function TabStack({ root, title }: { root: string; title?: string }) {
   const p = usePalette();
   return (

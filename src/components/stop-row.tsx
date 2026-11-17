@@ -11,16 +11,20 @@ import { usePalette } from "@/theme/colors";
 import { size, space } from "@/theme/tokens";
 import type { Stop } from "@/transit/types";
 
-import { StationGlyph, StopSignGlyph } from "./glyphs";
 import { Icon, icons } from "./icon";
 import { RouteBadge } from "./route-badge";
 import { Text } from "./text";
 import { Tile } from "./tile";
 
+/** A stop drawn as on the map: an ink ring for a street stop, an ink square for a TransMilenio station. */
 export function StopTile({ kind, tier = "md" }: { kind: Stop["kind"]; tier?: keyof typeof size.tile }) {
   const p = usePalette();
   const glyph = size.glyph[tier];
-  return <Tile tier={tier}>{kind === "station" ? <StationGlyph size={glyph} color={p.text} /> : <StopSignGlyph size={glyph} color={p.text} cut={p.surface} />}</Tile>;
+  return (
+    <Tile tier={tier}>
+      <View style={{ width: glyph, height: glyph, borderRadius: kind === "station" ? size.line.rule : glyph, borderWidth: size.line.bar, borderColor: p.ink, backgroundColor: p.elevated }} />
+    </Tile>
+  );
 }
 
 export function StopRow({ stop, nickname }: { stop: Stop; nickname?: string | null }) {

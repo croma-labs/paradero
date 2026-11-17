@@ -22,7 +22,7 @@ import { askForLocation } from "@/lib/location";
 import { finishOnboarding } from "@/lib/onboarding";
 import { photo, signal, usePalette } from "@/theme/colors";
 import { motion } from "@/theme/motion";
-import { radius, size, space } from "@/theme/tokens";
+import { layout, radius, size, space } from "@/theme/tokens";
 
 const PHOTOS: Record<number, number> = {
   0: require("@/assets/images/onboarding/welcome.jpg"),
@@ -93,7 +93,7 @@ export default function Onboarding() {
       {photoStep && (
         <Animated.View key={`photo-${step}`} entering={motion.appear()} exiting={motion.leave} style={[styles.photo, { height: height * (step === 0 ? 0.68 : 0.52) }]}>
           <Image source={PHOTOS[step]} style={StyleSheet.absoluteFill} contentFit="cover" transition={0} accessibilityIgnoresInvertColors />
-          <Svg style={StyleSheet.absoluteFill} preserveAspectRatio="none">
+          <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} preserveAspectRatio="none">
             <Defs>
               <LinearGradient id="top" x1="0" y1="0" x2="0" y2="1">
                 <Stop offset="0" stopColor={photo.scrim} stopOpacity="0.38" />
@@ -279,6 +279,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   top: {
+    maxWidth: layout.content,
+    marginHorizontal: "auto",
     position: "absolute",
     top: 0,
     left: 0,
@@ -301,7 +303,7 @@ const styles = StyleSheet.create({
     gap: space[2],
   },
   name: { flexDirection: "row", alignItems: "center", gap: space[2] },
-  preview: { position: "absolute", left: space[6], right: space[6] },
+  preview: { position: "absolute", left: space[6], right: space[6], maxWidth: layout.column - space[12], marginHorizontal: "auto" },
   previewGlass: { borderRadius: radius.xl, overflow: "hidden" },
   previewRow: {
     flexDirection: "row",
@@ -315,6 +317,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-end",
     paddingHorizontal: space[6],
+    width: "100%",
+    maxWidth: layout.column,
+    alignSelf: "center",
   },
   copy: { gap: space[3] },
   reasons: { gap: space[3], marginTop: space[1] },
