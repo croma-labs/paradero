@@ -65,8 +65,9 @@ export function useSearch(query: string) {
   });
 }
 
-const stopQuery = (id: string) => ({ queryKey: ["stop", id], queryFn: () => get<StopDetail>(`/api/stops/${id}`), staleTime: LIVE });
-const routeQuery = (id: string) => ({ queryKey: ["route", id], queryFn: () => get<RouteDetail>(`/api/routes/${id}`), staleTime: LIVE });
+// Ids can arrive from a link, so they are encoded: a `/` or `..` must not point the request at another endpoint.
+const stopQuery = (id: string) => ({ queryKey: ["stop", id], queryFn: () => get<StopDetail>(`/api/stops/${encodeURIComponent(id)}`), staleTime: LIVE });
+const routeQuery = (id: string) => ({ queryKey: ["route", id], queryFn: () => get<RouteDetail>(`/api/routes/${encodeURIComponent(id)}`), staleTime: LIVE });
 
 export function prefetchStop(id: string) {
   void queryClient.prefetchQuery(stopQuery(id));

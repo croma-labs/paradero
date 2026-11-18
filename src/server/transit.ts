@@ -48,9 +48,12 @@ function toAlerts(raw: z.infer<typeof s.alerts>): Alert[] {
 
 /** Nearest first, rounded to ~50 m so riders standing on the same corner share one answer. */
 export function nearby(lat: number, lon: number): Promise<Nearby> {
-  const key = `${lat.toFixed(3)},${lon.toFixed(3)}`;
+  // The app already rounds, but an older build or a direct call might not: the exact point never goes further than this server,
+  // and the cached distances are measured from the shared corner, not from the first rider who asked.
+  const point = { latitude: Number(lat.toFixed(3)), longitude: Number(lon.toFixed(3)) };
+  const key = `${point.latitude.toFixed(3)},${point.longitude.toFixed(3)}`;
   return nearbyCache(key, async () => {
-    const data = await croma("stops-search", { latitude: lat, longitude: lon, radius_m: 700, per_page: 25 }, s.stopsSearch);
+    const data = await croma("stops-search", { ...point, radius_m: 700, per_page: 25 }, s.stopsSearch);
     return { stops: data.stops.map(toStop) };
   });
 }

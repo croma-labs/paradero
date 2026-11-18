@@ -26,7 +26,9 @@ export default function Report() {
   const t = useT();
   const { screenReader } = useAccessibility();
   const params = useLocalSearchParams<{ kind?: ReportKind; stopId?: string; stopName?: string; routeId?: string; routeCode?: string }>();
-  const [kind, setKind] = useState<ReportKind>(params.kind && params.kind in REPORT_KINDS ? params.kind : params.stopId || params.routeId ? "time" : "idea");
+  const [kind, setKind] = useState<ReportKind>(
+    params.kind && Object.prototype.hasOwnProperty.call(REPORT_KINDS, params.kind) ? params.kind : params.stopId || params.routeId ? "time" : "idea",
+  );
   const [message, setMessage] = useState("");
   const about = params.routeCode ? t.report.route(params.routeCode) : params.stopName ? params.stopName : null;
 
@@ -63,7 +65,9 @@ export default function Report() {
         </Text>
         <View style={styles.actions}>
           <Button label={t.common.done} onPress={() => router.back()} />
-          <Button variant="quiet" height="md" role="link" label={t.report.view} onPress={() => void WebBrowser.openBrowserAsync(issue.url)} />
+          {issue.url.startsWith("https://github.com/") && (
+            <Button variant="quiet" height="md" role="link" label={t.report.view} onPress={() => void WebBrowser.openBrowserAsync(issue.url)} />
+          )}
         </View>
       </View>
     );

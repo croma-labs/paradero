@@ -20,7 +20,10 @@ const failure = z.object({ error: z.object({ code: z.string(), message: z.string
 
 export async function croma<S extends z.ZodType>(endpoint: string, body: Record<string, unknown>, schema: S): Promise<z.infer<S>> {
   const key = process.env.CROMA_API_KEY;
-  if (!key) throw new CromaError("missing_api_key", "Set CROMA_API_KEY in .env.local.", 500);
+  if (!key) {
+    console.error("[croma] Set CROMA_API_KEY in .env.local.");
+    throw new CromaError("missing_api_key", "The transit source is not configured.", 500);
+  }
 
   let res: Response;
   try {
@@ -38,11 +41,17 @@ export async function croma<S extends z.ZodType>(endpoint: string, body: Record<
   const json: unknown = await res.json().catch(() => null);
   const failed = failure.safeParse(json);
   if (!res.ok || failed.success) {
-    throw new CromaError(failed.success ? failed.data.error.code : `http_${res.status}`, failed.success ? failed.data.error.message : res.statusText);
+    const code = failed.success ? failed.data.error.code : `http_${res.status}`;
+    // The source's own wording stays in the log; riders and callers get a code and a plain sentence.
+    console.error("[croma]", endpoint, res.status, code, failed.success ? failed.data.error.message : res.statusText);
+    throw new CromaError(code, "Croma could not answer.");
   }
 
   const parsed = schema.safeParse((json as { data?: unknown } | null)?.data);
-  if (!parsed.success) throw new CromaError("unexpected_response", `Unexpected shape from ${endpoint}.`);
+  if (!parsed.success) {
+    console.error("[croma]", endpoint, "unexpected shape", parsed.error.issues.slice(0, 3));
+    throw new CromaError("unexpected_response", "Croma answered in an unexpected way.");
+  }
   return parsed.data;
 }
 
