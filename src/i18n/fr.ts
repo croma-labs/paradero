@@ -25,6 +25,35 @@ export const fr: Messages = {
     early: (m) => `${m} min d’avance`,
   },
 
+  vehicleSize: {
+    small: "Petit bus",
+    large: "Grand bus",
+    recorded: (label, date) => `${label} · données de ${date}`,
+  },
+
+  vehicleSizeReport: {
+    unknown: "Taille non confirmée",
+    invite: "Vous voyez ce bus ? Aidez-nous à connaître sa taille",
+    title: "Aidez-nous pour ce bus",
+    plate: (plate) => `Plaque ${plate}`,
+    help: "Vérifiez la plaque du bus avant de répondre. En cas de doute, vous pouvez quitter sans rien envoyer.",
+    question: "Quelle est la taille de ce bus ?",
+    confirm: "Je vois ce bus et sa plaque correspond",
+    public: "La plaque et votre réponse seront publiées sur GitHub comme une observation en attente de vérification, avec la version et la plateforme de l’app. La taille ne changera qu’après vérification.",
+    sendHint: "Choisissez une taille et confirmez que vous voyez le bus avec cette plaque.",
+    send: "Envoyer l’observation",
+    sending: "Envoi de l’observation…",
+    cancel: "Annuler",
+    dontKnow: "Je ne sais pas",
+    thanks: "Merci pour votre aide",
+    pending: "Votre observation est en attente de vérification. Elle ne change pas encore la taille affichée dans l’app.",
+    invalidPlate: "Nous n’avons pas de plaque valide pour ce bus. Retournez à l’arrêt et réessayez depuis un bus que vous voyez.",
+    known: "Nous connaissons déjà la taille de ce bus. Il n’est pas nécessaire d’envoyer une observation.",
+    tooMany: "Plusieurs observations ont été envoyées à la suite. Réessayez plus tard.",
+    unavailable: "Nous ne pouvons pas recevoir d’observations pour le moment. Réessayez plus tard.",
+    failed: "Nous n’avons pas pu confirmer l’envoi. Vérifiez votre connexion et réessayez.",
+  },
+
   speech: {
     route: (code) => `Ligne ${code}`,
     or: " ou ",
@@ -314,7 +343,7 @@ export const fr: Messages = {
       },
       {
         title: "Signalements",
-        body: "Si vous signalez un problème, le texte que vous écrivez est publié sur GitHub pour que tout le monde puisse le suivre. Avant publication, nous masquons e-mails, téléphones et numéros d’identité. Nous ne gardons pas qui l’a envoyé. Pour limiter les abus, notre serveur compte brièvement combien de signalements viennent d’une même connexion, en mémoire seulement.",
+        body: "Si vous signalez un problème, le texte que vous écrivez est publié sur GitHub pour que tout le monde puisse le suivre. Avant publication, nous masquons e-mails, téléphones et numéros d’identité. Nous ne gardons pas qui l’a envoyé. Pour limiter les abus, notre serveur compte brièvement combien de signalements viennent d’une même connexion, en mémoire seulement. Si vous indiquez la taille d’un bus, sa plaque et l’option choisie sont publiées comme une observation en attente de vérification.",
       },
       { title: "Ni publicité ni pistage", body: "Paradero n’a pas de publicité, n’utilise aucun outil d’analyse tiers et ne vend ni ne partage de données." },
       {

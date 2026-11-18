@@ -25,6 +25,35 @@ export const de: Messages = {
     early: (m) => `${m} Min. früher`,
   },
 
+  vehicleSize: {
+    small: "Kleiner Bus",
+    large: "Großer Bus",
+    recorded: (label, date) => `${label} · Datenstand ${date}`,
+  },
+
+  vehicleSizeReport: {
+    unknown: "Größe nicht bestätigt",
+    invite: "Siehst du diesen Bus? Hilf uns, seine Größe zu bestimmen",
+    title: "Hilf uns bei diesem Bus",
+    plate: (plate) => `Kennzeichen ${plate}`,
+    help: "Prüfe vor deiner Antwort das Kennzeichen am Bus. Wenn du unsicher bist, kannst du ohne Senden zurückgehen.",
+    question: "Wie groß ist dieser Bus?",
+    confirm: "Ich sehe diesen Bus und das Kennzeichen stimmt überein",
+    public: "Das Kennzeichen und deine Antwort werden zusammen mit App-Version und Plattform auf GitHub als Beobachtung zur Prüfung veröffentlicht. Die Größe ändert sich erst nach unserer Prüfung.",
+    sendHint: "Wähle eine Größe und bestätige, dass du den Bus mit diesem Kennzeichen siehst.",
+    send: "Beobachtung senden",
+    sending: "Beobachtung wird gesendet…",
+    cancel: "Abbrechen",
+    dontKnow: "Ich weiß es nicht",
+    thanks: "Danke für deine Hilfe",
+    pending: "Deine Beobachtung wartet auf Prüfung. Die in der App angezeigte Größe ändert sich dadurch noch nicht.",
+    invalidPlate: "Für diesen Bus liegt kein gültiges Kennzeichen vor. Gehe zur Haltestelle zurück und versuche es bei einem Bus, den du siehst.",
+    known: "Die Größe dieses Busses ist bereits bekannt. Du musst keine Beobachtung senden.",
+    tooMany: "Es wurden mehrere Beobachtungen hintereinander gesendet. Versuche es später erneut.",
+    unavailable: "Wir können derzeit keine Beobachtungen empfangen. Versuche es später erneut.",
+    failed: "Wir konnten den Versand nicht bestätigen. Prüfe deine Verbindung und versuche es erneut.",
+  },
+
   speech: {
     route: (code) => `Linie ${code}`,
     or: " oder ",
@@ -314,7 +343,7 @@ export const de: Messages = {
       },
       {
         title: "Meldungen",
-        body: "Wenn du ein Problem meldest, wird dein Text auf GitHub veröffentlicht, damit alle ihn verfolgen können. Vorher blenden wir E-Mail-Adressen, Telefon- und Ausweisnummern aus. Wir speichern nicht, wer ihn gesendet hat. Um Missbrauch zu begrenzen, zählt unser Server kurzzeitig nur im Arbeitsspeicher, wie viele Meldungen von derselben Verbindung kommen.",
+        body: "Wenn du ein Problem meldest, wird dein Text auf GitHub veröffentlicht, damit alle ihn verfolgen können. Vorher blenden wir E-Mail-Adressen, Telefon- und Ausweisnummern aus. Wir speichern nicht, wer ihn gesendet hat. Um Missbrauch zu begrenzen, zählt unser Server kurzzeitig nur im Arbeitsspeicher, wie viele Meldungen von derselben Verbindung kommen. Wenn du die Größe eines Busses meldest, werden sein Kennzeichen und deine Auswahl als Beobachtung zur Prüfung veröffentlicht.",
       },
       { title: "Keine Werbung, kein Tracking", body: "Paradero hat keine Werbung, nutzt keine Analysedienste Dritter und verkauft oder teilt keine Daten." },
       {

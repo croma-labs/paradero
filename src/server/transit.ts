@@ -1,11 +1,14 @@
 import { humanizeAlert } from "@/transit/alerts";
 import { dedupeRoutes, describeRoute } from "@/transit/codes";
 import type { Alert, Arrival, Bus, Feed, Health, IncomingBus, Nearby, RouteDetail, SearchResult, Stop, StopDetail } from "@/transit/types";
+import { normalizeVehiclePlate } from "@/transit/vehicle-size-report";
 import type { z } from "zod";
 
 import { simplify } from "@/transit/path";
 
 import { cached, croma, isLive } from "./croma";
+import { lookupVehicleSize } from "./fleet";
+import { vehicleSizeReportsAvailable } from "./vehicle-size-report";
 import * as s from "./schemas";
 
 const MINUTE = 60_000;
@@ -98,6 +101,8 @@ export async function stopDetail(stopId: string): Promise<StopDetail | null> {
 
   const arrivals: Arrival[] = next.arrivals.map((a) => {
     const route = describeRoute({ id: a.route_id ?? "", shortName: a.route_code ?? null, longName: a.route_name ?? null, system: a.system ?? null });
+    const identifiedBus = a.basis !== "scheduled" && route.system !== "transmicable" && normalizeVehiclePlate(a.license_plate) !== null;
+    const vehicleSize = identifiedBus ? lookupVehicleSize(a.license_plate) : null;
     return {
       routeId: a.route_id ?? null,
       code: route.code,
@@ -110,6 +115,8 @@ export async function stopDetail(stopId: string): Promise<StopDetail | null> {
       delaySeconds: a.delay_seconds ?? null,
       vehicle: a.vehicle_label ?? null,
       plate: a.license_plate ?? null,
+      vehicleSize,
+      canReportVehicleSize: live && identifiedBus && vehicleSize === null && vehicleSizeReportsAvailable(),
     };
   });
 
@@ -140,6 +147,7 @@ async function incomingTo(stop: Stop, routeIds: string[]): Promise<IncomingBus[]
         nextStop: v.stop_name ?? null,
         plate: v.license_plate ?? null,
         reportedAt: v.reported_at ?? null,
+        vehicleSize: route.system === "transmicable" ? null : lookupVehicleSize(v.license_plate),
         code: route.code,
         system: route.system,
       };
@@ -188,6 +196,7 @@ function busesOn(code: string) {
         nextStop: v.stop_name ?? null,
         plate: v.license_plate ?? null,
         reportedAt: v.reported_at ?? null,
+        vehicleSize: v.system === "transmicable" ? null : lookupVehicleSize(v.license_plate),
       })),
     );
     return { feed: { asOf: first.as_of, live: isLive(first.as_of, first.live) }, buses };

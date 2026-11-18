@@ -27,6 +27,35 @@ export const es = {
     early: (m: number) => `${m} min antes`,
   },
 
+  vehicleSize: {
+    small: "Bus pequeño",
+    large: "Bus grande",
+    recorded: (label: string, date: string) => `${label} · registro de ${date}`,
+  },
+
+  vehicleSizeReport: {
+    unknown: "Tamaño sin confirmar",
+    invite: "¿Ves este bus? Ayúdanos con su tamaño",
+    title: "Ayuda con este bus",
+    plate: (plate: string) => `Placa ${plate}`,
+    help: "Mira la placa del bus antes de responder. Si no estás seguro, puedes salir sin enviar nada.",
+    question: "¿Qué tamaño tiene este bus?",
+    confirm: "Estoy viendo este bus y la placa coincide",
+    public: "La placa y tu respuesta se publicarán en GitHub como una observación pendiente de revisión, junto con la versión y plataforma de la app. El tamaño no cambiará hasta que la revisemos.",
+    sendHint: "Elige un tamaño y confirma que estás viendo el bus con esta placa.",
+    send: "Enviar observación",
+    sending: "Enviando observación…",
+    cancel: "Cancelar",
+    dontKnow: "No lo sé",
+    thanks: "Gracias por ayudar",
+    pending: "Tu observación quedó pendiente de revisión. Todavía no cambia el tamaño mostrado en la app.",
+    invalidPlate: "No tenemos una placa válida para este bus. Vuelve al paradero e inténtalo desde un bus que veas.",
+    known: "Ya tenemos el tamaño de este bus. No hace falta enviar una observación.",
+    tooMany: "Se han enviado varias observaciones seguidas. Inténtalo más tarde.",
+    unavailable: "Por ahora no podemos recibir observaciones. Inténtalo más tarde.",
+    failed: "No pudimos confirmar el envío. Revisa tu conexión e inténtalo de nuevo.",
+  },
+
   speech: {
     route: (code: string) => `Ruta ${code}`,
     or: " o ",
@@ -317,7 +346,7 @@ export const es = {
       },
       {
         title: "Reportes",
-        body: "Si nos reportas un problema, el texto que escribas se publica en GitHub para que cualquiera pueda seguirlo. Antes de publicarlo ocultamos correos, teléfonos y números de documento. No guardamos quién lo envió. Para limitar el abuso, nuestro servidor cuenta por un rato cuántos reportes llegan desde una misma conexión, solo en memoria.",
+        body: "Si nos reportas un problema, el texto que escribas se publica en GitHub para que cualquiera pueda seguirlo. Antes de publicarlo ocultamos correos, teléfonos y números de documento. No guardamos quién lo envió. Para limitar el abuso, nuestro servidor cuenta por un rato cuántos reportes llegan desde una misma conexión, solo en memoria. Si informas el tamaño de un bus, su placa y la opción que elijas se publican como una observación pendiente de revisión.",
       },
       { title: "Sin publicidad ni rastreo", body: "Paradero no tiene anuncios, no usa analítica de terceros y no vende ni comparte datos con nadie." },
       {

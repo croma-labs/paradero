@@ -5,12 +5,12 @@ import type { Arrival, Feed } from "@/transit/types";
 const ZONE = "America/Bogota";
 const formats = new Map<string, Intl.DateTimeFormat>();
 
-function format(kind: "time" | "day" | "hour"): Intl.DateTimeFormat {
+function format(kind: "time" | "day" | "hour" | "month"): Intl.DateTimeFormat {
   const key = `${tag()}:${kind}`;
   let f = formats.get(key);
   if (!f) {
     const options: Intl.DateTimeFormatOptions =
-      kind === "time" ? { hour: "numeric", minute: "2-digit" } : kind === "day" ? { day: "numeric", month: "long" } : { hour: "numeric", hourCycle: "h23" };
+      kind === "time" ? { hour: "numeric", minute: "2-digit" } : kind === "day" ? { day: "numeric", month: "long" } : kind === "month" ? { month: "short", year: "numeric" } : { hour: "numeric", hourCycle: "h23" };
     f = new Intl.DateTimeFormat(tag(), { ...options, timeZone: ZONE });
     formats.set(key, f);
   }
@@ -45,7 +45,20 @@ export function spokenRoute(aliases: string[]): string {
 }
 
 export function spokenArrival(a: Arrival): string {
-  return t().speech.arrival(spokenRoute(a.aliases), a.name, spokenWhen(a.minutes), punctuality(a).text);
+  const arrival = t().speech.arrival(spokenRoute(a.aliases), a.name, spokenWhen(a.minutes), punctuality(a).text);
+  const vehicleSize = arrivalVehicleSize(a);
+  return vehicleSize ? `${arrival} ${vehicleSize}.` : arrival;
+}
+
+/** The fleet register describes a vehicle, not a route or how full the bus is now. */
+export function arrivalVehicleSize(a: Arrival): string | null {
+  const vehicle = a.vehicleSize;
+  if (a.basis === "scheduled" || a.system === "transmicable" || !vehicle) return null;
+  if (vehicle.size !== "small" && vehicle.size !== "large") return null;
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(vehicle.asOf)) return null;
+  const date = format("month").format(new Date(`${vehicle.asOf}-01T12:00:00Z`));
+  const messages = t().vehicleSize;
+  return messages.recorded(messages[vehicle.size], date);
 }
 
 export function clock(iso: string): string {

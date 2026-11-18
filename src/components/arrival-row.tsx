@@ -4,7 +4,7 @@ import Animated from "react-native-reanimated";
 
 import { useT } from "@/i18n";
 import { useLargeText } from "@/lib/accessibility";
-import { punctuality, spokenArrival } from "@/lib/format";
+import { arrivalVehicleSize, punctuality, spokenArrival } from "@/lib/format";
 import { signal, usePalette } from "@/theme/colors";
 import { motion } from "@/theme/motion";
 import { radius, space } from "@/theme/tokens";
@@ -32,6 +32,7 @@ export function ArrivalRow({ arrival, first, index = 0, following = false, onPre
   const p = usePalette();
   const t = useT();
   const large = useLargeText();
+  const vehicleSize = arrivalVehicleSize(arrival);
   // The next bus says the times are a live estimate; the rows under it only speak up when theirs is something else.
   const plain = arrival.basis === "estimated" && arrival.delaySeconds == null;
   return (
@@ -50,6 +51,7 @@ export function ArrivalRow({ arrival, first, index = 0, following = false, onPre
           <Text variant="headline" weight={500} numberOfLines={large ? undefined : 1}>
             {arrival.name}
           </Text>
+          {vehicleSize && <Text variant="caption" tone="muted">{vehicleSize}</Text>}
           {!plain && <Pace arrival={arrival} />}
         </View>
         <View style={styles.when}>
