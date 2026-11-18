@@ -60,7 +60,9 @@ export default function StopScreen() {
   const [picked, setPicked] = useState<string | null>(null);
   const followed = arrivals.find((a) => keyOf(a) === picked) ?? next;
   const live = !!data?.feed.live && followed?.basis !== "scheduled";
-  const { data: route } = useRoute(live ? (followed?.routeId ?? undefined) : undefined);
+  const { data: routeAnswer } = useRoute(live ? (followed?.routeId ?? undefined) : undefined);
+  // A route whose vehicles did not answer comes back with no buses. The map then keeps the stop's own nearby buses instead of an empty list.
+  const route = routeAnswer?.feed.live ? routeAnswer : undefined;
   const focus = live && followed?.plate ? (route?.buses.find((b) => b.plate === followed.plate) ?? null) : null;
   const way = useMemo(() => (route && stop ? wayTowards(route.patterns ?? [{ path: route.path }], stop, focus) : undefined), [route, stop, focus]);
   const mapBuses =

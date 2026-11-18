@@ -51,28 +51,48 @@ export function isLive(asOf: string, live: boolean | undefined): boolean {
   return Date.now() - Date.parse(asOf) <= STALE_AFTER_MS;
 }
 
-/** One answer per key for `ttlMs`, shared by every rider on this instance, joining a request already in flight. */
+const MAX_KEYS = 2_000;
+
+function trim(map: Map<string, unknown>) {
+  if (map.size > MAX_KEYS) map.delete(map.keys().next().value as string);
+}
+
+/**
+ * One answer per key for `ttlMs` after it arrives, shared by every rider on this instance.
+ * A request still in flight is always joined, even past the TTL: a slow source must not get a second and third copy of the same question.
+ */
 export function cached<T>(ttlMs: number, graceMs = 0) {
-  const entries = new Map<string, { at: number; value: Promise<T>; last?: { at: number; value: T } }>();
+  type Entry = { at: number; settled: boolean; value: Promise<T> };
+  const entries = new Map<string, Entry>();
+  // The latest good answer per key, kept apart from the entries so a newer success is never forgotten by an older failure.
+  const lasts = new Map<string, { at: number; value: T }>();
   return (key: string, load: () => Promise<T>): Promise<T> => {
     const hit = entries.get(key);
-    if (hit && Date.now() - hit.at < ttlMs) return hit.value;
-    const last = hit?.last;
-    const entry: { at: number; value: Promise<T>; last?: { at: number; value: T } } = { at: Date.now(), value: Promise.resolve(undefined as T), last };
+    if (hit && (!hit.settled || Date.now() - hit.at < ttlMs)) return hit.value;
+    const entry: Entry = { at: Date.now(), settled: false, value: Promise.resolve(undefined as T) };
     entry.value = load().then(
       (value) => {
-        entry.last = { at: Date.now(), value };
+        entry.settled = true;
+        entry.at = Date.now();
+        if (graceMs > 0) {
+          lasts.set(key, { at: entry.at, value });
+          trim(lasts);
+        }
         return value;
       },
       (error: unknown) => {
+        entry.settled = true;
+        entry.at = Date.now();
         // The source stumbles now and then. A recent answer, which says how old it is, serves a rider better than an error.
+        const last = lasts.get(key);
         if (last && Date.now() - last.at < graceMs) return last.value;
-        entries.delete(key);
+        // Only this entry is dropped: a newer one for the same key may already be waiting on its own answer.
+        if (entries.get(key) === entry) entries.delete(key);
         throw error;
       },
     );
     entries.set(key, entry);
-    if (entries.size > 2_000) entries.delete(entries.keys().next().value as string);
+    trim(entries);
     return entry.value;
   };
 }

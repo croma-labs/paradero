@@ -1,6 +1,6 @@
 import { humanizeAlert } from "@/transit/alerts";
 import { dedupeRoutes, describeRoute } from "@/transit/codes";
-import type { Alert, Arrival, Bus, Feed, Health, IncomingBus, Nearby, RouteDetail, SearchResult, Stop, StopDetail } from "@/transit/types";
+import type { Alert, Arrival, Bus, Feed, Health, IncomingBus, Nearby, RouteDetail, RouteRef, SearchResult, Stop, StopDetail } from "@/transit/types";
 import type { z } from "zod";
 
 import { simplify } from "@/transit/path";
@@ -19,7 +19,10 @@ const searchCache = cached<SearchResult>(30 * MINUTE);
 const stopCache = cached<z.infer<typeof s.stopLookup>>(6 * 60 * MINUTE);
 const arrivalsCache = cached<z.infer<typeof s.arrivals>>(LIVE_TTL_MS, LIVE_GRACE_MS);
 const alertsCache = cached<Alert[]>(2 * MINUTE);
-const routeCache = cached<Omit<RouteDetail, "buses" | "feed" | "alerts">>(60 * MINUTE);
+/** A route as kept between requests: everything but what changes by the second, plus the name its hours are looked up by. */
+type RouteBase = Omit<RouteDetail, "buses" | "feed" | "alerts" | "route"> & { route: RouteRef; hoursQuery: string };
+const routeCache = cached<RouteBase | null>(60 * MINUTE);
+const hoursCache = cached<RouteHours>(60 * MINUTE);
 const busesCache = cached<{ feed: Feed; buses: Bus[] }>(LIVE_TTL_MS, LIVE_GRACE_MS);
 const aroundCache = cached<z.infer<typeof s.vehicles>>(LIVE_TTL_MS, LIVE_GRACE_MS);
 
@@ -83,16 +86,17 @@ function alertsFor(filter: { stop_id: string } | { route: string }): Promise<Ale
 }
 
 export async function stopDetail(stopId: string): Promise<StopDetail | null> {
-  const found = stopCache(stopId, () => croma("stop", { stop_id: stopId }, s.stopLookup));
-  const around = found.then((l) => (feedDown ? [] : l.found && l.stop ? within(incomingTo(toStop(l.stop), l.stop.routes.map((r) => r.route_id)), 1500, []) : []));
-  const [lookup, next, alerts, incoming] = await Promise.all([
-    found,
-    arrivalsCache(stopId, () => croma("stop-arrivals", { stop_id: stopId, limit: 30 }, s.arrivals)),
-    alertsFor({ stop_id: stopId }),
-    around,
-  ]);
+  // The lookup is kept for hours, "not found" included, so after the first time this wait is free. In return, an id that is not
+  // a stop costs one call instead of three: no arrivals or alerts are asked for a stop that does not exist.
+  const lookup = await stopCache(stopId, () => croma("stop", { stop_id: stopId }, s.stopLookup));
   if (!lookup.found || !lookup.stop) return null;
   const stop = toStop(lookup.stop);
+  const routeIds = lookup.stop.routes.map((r) => r.route_id);
+  const [next, alerts, incoming] = await Promise.all([
+    arrivalsCache(stopId, () => croma("stop-arrivals", { stop_id: stopId, limit: 30 }, s.arrivals)),
+    alertsFor({ stop_id: stopId }),
+    feedDown ? [] : within(incomingTo(stop, routeIds), 1500, []),
+  ]);
   const live = isLive(next.as_of, next.live);
   feedDown = !live;
 
@@ -146,23 +150,49 @@ async function incomingTo(stop: Stop, routeIds: string[]): Promise<IncomingBus[]
     });
 }
 
-async function loadRoute(routeId: string) {
+type RouteHours = Pick<RouteDetail["route"], "firstDeparture" | "lastDeparture" | "tripsPerWeek">;
+const NO_HOURS: RouteHours = { firstDeparture: null, lastDeparture: null, tripsPerWeek: null };
+const HOURS_RETRY_MS = MINUTE;
+const hoursFailedAt = new Map<string, number>();
+/** When each route's vehicles last answered, as the feed stamped it. A failed request reports this time, never the current one. */
+const vehiclesAsOf = new Map<string, string>();
+
+/**
+ * First and last bus, kept apart from the route itself. When this answer is slow the screen opens without it, but only this once:
+ * inside the route it was kept for the whole hour, blank. A late answer still lands in the cache for the next rider.
+ */
+function hoursOf(routeId: string, query: string): Promise<RouteHours> {
+  if (!query) return Promise.resolve(NO_HOURS);
+  // An open route asks again every few seconds. After a failed lookup the hours stay blank for a minute instead of asking Croma each time.
+  const failedAt = hoursFailedAt.get(routeId);
+  if (failedAt !== undefined && Date.now() - failedAt < HOURS_RETRY_MS) return Promise.resolve(NO_HOURS);
+  const load = hoursCache(routeId, async () => {
+    const found = await croma("routes-search", { query, per_page: 10 }, s.routesSearch).catch((error: unknown) => {
+      hoursFailedAt.set(routeId, Date.now());
+      if (hoursFailedAt.size > 2_000) hoursFailedAt.delete(hoursFailedAt.keys().next().value as string);
+      throw error;
+    });
+    hoursFailedAt.delete(routeId);
+    const own = found.routes.find((x) => x.route_id === routeId);
+    return {
+      firstDeparture: own?.first_departure?.slice(0, 5) ?? null,
+      lastDeparture: own?.last_departure?.slice(0, 5) ?? null,
+      tripsPerWeek: own?.trips_per_week ?? null,
+    };
+  });
+  return within(load, 1500, NO_HOURS);
+}
+
+async function loadRoute(routeId: string): Promise<RouteBase | null> {
   const data = await croma("route", { route_id: routeId, include_geometry: true }, s.route);
   if (!data.found || !data.route) return null;
   const r = data.route;
   const main = [...r.patterns].sort((a, b) => b.trips_per_week - a.trips_per_week)[0];
   const ref = describeRoute({ id: r.route_id, shortName: r.short_name ?? null, longName: r.long_name ?? null, system: r.system ?? null });
 
-  const hours = await within(croma("routes-search", { query: r.short_name ?? "", per_page: 10 }, s.routesSearch), 1500, null);
-  const own = hours?.routes.find((x) => x.route_id === r.route_id);
-
   return {
-    route: {
-      ...ref,
-      firstDeparture: own?.first_departure?.slice(0, 5) ?? null,
-      lastDeparture: own?.last_departure?.slice(0, 5) ?? null,
-      tripsPerWeek: own?.trips_per_week ?? null,
-    },
+    route: ref,
+    hoursQuery: r.short_name ?? "",
     path: (main?.geometry?.coordinates ?? []).map((c) => [c[0], c[1]] as [number, number]),
     patterns: [...r.patterns]
       .sort((a, b) => b.trips_per_week - a.trips_per_week)
@@ -190,24 +220,32 @@ function busesOn(code: string) {
         reportedAt: v.reported_at ?? null,
       })),
     );
+    vehiclesAsOf.set(code, first.as_of);
+    if (vehiclesAsOf.size > 2_000) vehiclesAsOf.delete(vehiclesAsOf.keys().next().value as string);
     return { feed: { asOf: first.as_of, live: isLive(first.as_of, first.live) }, buses };
   });
 }
 
 export async function routeDetail(routeId: string): Promise<RouteDetail | null> {
-  const base = await routeCache(routeId, async () => {
-    const loaded = await loadRoute(routeId);
-    if (!loaded) throw new Error("not_found");
-    return loaded;
-  }).catch((e: Error) => {
-    if (e.message === "not_found") return null;
-    throw e;
-  });
+  // "Not found" is kept like any answer, so asking again for a route that does not exist does not reach Croma every time.
+  const base = await routeCache(routeId, () => loadRoute(routeId));
   if (!base) return null;
+  const { route, hoursQuery, ...rest } = base;
 
-  const code = base.route.feedCode;
-  const [{ feed, buses }, alerts] = await Promise.all([busesOn(code), alertsFor({ route: code })]);
-  return { ...base, feed, buses, alerts };
+  const code = route.feedCode;
+  const [{ feed, buses }, alerts, hours] = await Promise.all([
+    // The line, its stops and its hours are still worth showing when the vehicles are not: the screen then says there is no live data
+    // since the last time they did answer. With no such time on this instance, the request fails as before rather than invent one.
+    busesOn(code).catch((error: unknown): { feed: Feed; buses: Bus[] } => {
+      const asOf = vehiclesAsOf.get(code);
+      if (!asOf) throw error;
+      console.error("[route]", code, "vehicles unavailable", error instanceof Error ? error.message : error);
+      return { feed: { asOf, live: false }, buses: [] };
+    }),
+    alertsFor({ route: code }),
+    hoursOf(routeId, hoursQuery),
+  ]);
+  return { ...rest, route: { ...route, ...hours }, feed, buses, alerts };
 }
 
 export async function health(): Promise<Health> {
