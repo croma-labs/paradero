@@ -61,6 +61,8 @@ export interface Arrival {
   plate?: string | null;
   /** Absent from older servers; null when the vehicle is not in the fleet register. */
   vehicleSize?: VehicleSize | null;
+  /** Explicit server opt-in for reporting an unknown size; absent on older servers. */
+  canReportVehicleSize?: boolean;
 }
 
 export interface Alert {

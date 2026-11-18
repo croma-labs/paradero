@@ -31,6 +31,29 @@ export const en: Messages = {
     recorded: (label, date) => `${label} · records from ${date}`,
   },
 
+  vehicleSizeReport: {
+    unknown: "Size not confirmed",
+    invite: "Can you see this bus? Help us identify its size",
+    title: "Help with this bus",
+    plate: (plate) => `Plate ${plate}`,
+    help: "Check the bus's plate before answering. If you are not sure, you can leave without sending anything.",
+    question: "What size is this bus?",
+    confirm: "I can see this bus and its plate matches",
+    public: "The plate and your answer will be published on GitHub as an observation awaiting review, along with the app version and platform. The size will not change until we review it.",
+    sendHint: "Choose a size and confirm that you can see the bus with this plate.",
+    send: "Send observation",
+    sending: "Sending observation…",
+    cancel: "Cancel",
+    dontKnow: "I don't know",
+    thanks: "Thanks for helping",
+    pending: "Your observation is awaiting review. It does not change the size shown in the app yet.",
+    invalidPlate: "We do not have a valid plate for this bus. Return to the stop and try from a bus you can see.",
+    known: "We already have the size of this bus. There is no need to send an observation.",
+    tooMany: "Several observations have been sent in a row. Please try again later.",
+    unavailable: "We cannot receive observations right now. Please try again later.",
+    failed: "We could not confirm your submission. Check your connection and try again.",
+  },
+
   speech: {
     route: (code) => `Route ${code}`,
     or: " or ",
@@ -320,7 +343,7 @@ export const en: Messages = {
       },
       {
         title: "Reports",
-        body: "If you report a problem, the text you write is published on GitHub so anyone can follow it. Before publishing we hide emails, phone numbers and ID numbers. We don't store who sent it. To limit abuse, our server briefly counts how many reports come from the same connection, in memory only.",
+        body: "If you report a problem, the text you write is published on GitHub so anyone can follow it. Before publishing we hide emails, phone numbers and ID numbers. We don't store who sent it. To limit abuse, our server briefly counts how many reports come from the same connection, in memory only. If you report a bus's size, its plate and the option you choose are published as an observation awaiting review.",
       },
       { title: "No ads or tracking", body: "Paradero has no ads, uses no third-party analytics and never sells or shares data with anyone." },
       {

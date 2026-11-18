@@ -21,6 +21,7 @@ import { Empty } from "@/components/state";
 import { StopTile } from "@/components/stop-row";
 import { Text } from "@/components/text";
 import { TransitMap } from "@/components/transit-map";
+import { VehicleSizePrompt } from "@/components/vehicle-size-prompt";
 import type { MapHandle } from "@/components/transit-map.types";
 import { useT } from "@/i18n";
 import { announce, useLargeText } from "@/lib/accessibility";
@@ -170,6 +171,7 @@ export default function StopScreen() {
             )}
 
             {next ? <NextBus arrival={next} following={!!focus && followed === next} onPress={() => follow(next)} /> : <Empty title={t.stop.none.title} body={t.stop.none.body} />}
+            {next && <VehicleSizePrompt arrival={next} feed={data.feed} />}
 
             {/* Each live arrival already says so; the notice is for when times fall back to the timetable. */}
             {!data.feed.live && <FeedStatus feed={data.feed} />}
@@ -181,7 +183,10 @@ export default function StopScreen() {
                   {t.stop.later}
                 </Text>
                 {later.slice(0, 10).map((a, i) => (
-                  <ArrivalRow key={`${a.code}-${a.at}-${i}`} arrival={a} first={i === 0} index={i} following={!!focus && followed === a} onPress={() => follow(a)} />
+                  <View key={`${a.code}-${a.at}-${i}`}>
+                    <ArrivalRow arrival={a} first={i === 0} index={i} following={!!focus && followed === a} onPress={() => follow(a)} />
+                    <VehicleSizePrompt arrival={a} feed={data.feed} />
+                  </View>
                 ))}
               </View>
             )}
