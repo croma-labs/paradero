@@ -40,15 +40,18 @@ export default function Search() {
     return () => clearTimeout(t);
   }, [q]);
   const query = useDeferredValue(text);
-  const { data, isFetching, isError, refetch } = useSearch(query);
+  const { data, isFetching, isError, isPlaceholderData, refetch } = useSearch(query);
   const typed = query.trim().length >= 2;
-  const nothing = data && data.routes.length === 0 && data.stops.length === 0;
+  // While the answer for what was just typed is on its way, `data` still holds the previous one. It can stay on screen, but it
+  // must not be read out or shown as "nothing for" the new words.
+  const settled = !!data && !isPlaceholderData;
+  const nothing = settled && data.routes.length === 0 && data.stops.length === 0;
 
   useEffect(() => {
     if (!typed) return;
     if (isError) announce(t.search.failed.title);
-    else if (data) announce(nothing ? t.search.nothing(query.trim()) : `${t.search.routes}: ${data.routes.length}. ${t.search.stops}: ${data.stops.length}.`);
-  }, [data, isError, typed, nothing, query, t]);
+    else if (settled) announce(nothing ? t.search.nothing(query.trim()) : `${t.search.routes}: ${data.routes.length}. ${t.search.stops}: ${data.stops.length}.`);
+  }, [data, isError, typed, settled, nothing, query, t]);
 
   const pick = (value: string) => {
     bar.current?.setText(value);
