@@ -8,6 +8,7 @@
     "@expo/ui": "~58.0.27",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@maplibre/maplibre-react-native": "^11.5.1",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@react-native-masked-view/masked-view": "0.3.2",
     "@tanstack/react-query": "^5.107.1",
     "expo": "~58.0.23",
@@ -45,6 +46,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/node": "^22.20.5",
     "@types/react": "~19.3.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.4",
@@ -58,11 +60,14 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "lint:tokens": "node scripts/check-tokens.mjs",
-    "check": "tsc --noEmit && eslint src --max-warnings 0 && node scripts/check-tokens.mjs && node --no-warnings scripts/check-contrast.ts && node scripts/check-strings.mjs",
+    "check": "tsc --noEmit && eslint src --max-warnings 0 && node scripts/check-tokens.mjs && node --no-warnings scripts/check-contrast.ts && node scripts/check-strings.mjs && npm run test:planner",
     "deploy:api": "scripts/deploy-api.sh",
     "lint:strings": "node scripts/check-strings.mjs",
     "lint:contrast": "node --no-warnings scripts/check-contrast.ts",
-    "release:ios": "scripts/release-ios.sh"
+    "release:ios": "scripts/release-ios.sh",
+    "network": "node --no-warnings --max-old-space-size=4096 scripts/build-network.ts && node --no-warnings scripts/build-places.ts",
+    "test:planner": "node --no-warnings --max-old-space-size=4096 --test test/planner/*.test.ts",
+    "bench:planner": "node --no-warnings --max-old-space-size=4096 scripts/bench-planner.ts"
   },
   "private": true
 }
