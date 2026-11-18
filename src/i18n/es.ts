@@ -95,6 +95,10 @@ export const es = {
       body: "Busca cualquier ruta o paradero. Si activas la ubicación, te mostramos los que tienes a una cuadra. Nunca la guardamos.",
       action: "Activar ubicación",
     },
+    unavailable: {
+      title: "No encontramos dónde estás",
+      body: "El teléfono no nos está dando tu ubicación. Pasa en lugares cerrados o con el GPS apagado. Mientras tanto, busca cualquier ruta o paradero.",
+    },
     failed: { title: "No pudimos cargar los paraderos", body: "Revisa tu conexión. Lo intentamos de nuevo apenas vuelva." },
     none: { title: "No hay paraderos a 700 m", body: "Busca el nombre de una estación o la ruta que tomas." },
   },

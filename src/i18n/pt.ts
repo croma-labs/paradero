@@ -92,6 +92,10 @@ export const pt: Messages = {
       body: "Busque qualquer linha ou ponto. Se ativar a localização, mostramos os que estão a uma quadra. Nunca a guardamos.",
       action: "Ativar localização",
     },
+    unavailable: {
+      title: "Não achamos onde você está",
+      body: "Seu celular não está passando sua localização agora. Isso acontece em lugares fechados ou com o GPS desligado. Enquanto isso, busque qualquer linha ou ponto.",
+    },
     failed: { title: "Não conseguimos carregar os pontos", body: "Verifique sua conexão. Tentamos de novo assim que ela voltar." },
     none: { title: "Nenhum ponto a 700 m", body: "Busque o nome de uma estação ou a linha que você pega." },
   },

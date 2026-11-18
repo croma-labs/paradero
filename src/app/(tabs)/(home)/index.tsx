@@ -152,6 +152,9 @@ export default function Home() {
                 onAction={() => void retry()}
               />
             )}
+            {state.status === "unavailable" && (
+              <Empty title={t.home.unavailable.title} body={t.home.unavailable.body} action={t.common.retry} onAction={() => void retry()} />
+            )}
             {anchor && nearby.isLoading && <SkeletonList rows={4} />}
             {anchor && nearby.isError && (
               <Empty title={t.home.failed.title} body={t.home.failed.body} action={t.common.retry} onAction={() => void nearby.refetch()} />

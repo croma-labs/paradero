@@ -92,6 +92,10 @@ export const fr: Messages = {
       body: "Cherchez une ligne ou un arrêt. Si vous activez la localisation, nous montrons ceux à une rue de vous. Nous ne la gardons jamais.",
       action: "Activer la localisation",
     },
+    unavailable: {
+      title: "Impossible de vous situer",
+      body: "Votre téléphone ne donne pas votre position pour l’instant. Cela arrive à l’intérieur ou avec le GPS désactivé. En attendant, cherchez une ligne ou un arrêt.",
+    },
     failed: { title: "Impossible de charger les arrêts", body: "Vérifiez votre connexion. Nous réessayons dès qu’elle revient." },
     none: { title: "Aucun arrêt à moins de 700 m", body: "Cherchez le nom d’une station ou la ligne que vous prenez." },
   },

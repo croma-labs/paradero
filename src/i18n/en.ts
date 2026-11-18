@@ -92,6 +92,10 @@ export const en: Messages = {
       body: "Search for any route or stop. If you turn on location, we show the ones a block away. We never store it.",
       action: "Turn on location",
     },
+    unavailable: {
+      title: "We can't find where you are",
+      body: "Your phone isn't giving us your location right now. That happens indoors or with GPS off. Meanwhile, search for any route or stop.",
+    },
     failed: { title: "We couldn't load the stops", body: "Check your connection. We'll try again as soon as it's back." },
     none: { title: "No stops within 700 m", body: "Search for a station name or the route you take." },
   },

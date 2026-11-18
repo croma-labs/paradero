@@ -92,6 +92,10 @@ export const de: Messages = {
       body: "Suche nach einer Linie oder Haltestelle. Mit Standort zeigen wir dir die, die einen Block entfernt sind. Wir speichern ihn nie.",
       action: "Standort aktivieren",
     },
+    unavailable: {
+      title: "Wir finden deinen Standort nicht",
+      body: "Dein Handy liefert gerade keinen Standort. Das passiert in Gebäuden oder bei ausgeschaltetem GPS. Such so lange nach einer Linie oder Haltestelle.",
+    },
     failed: { title: "Haltestellen konnten nicht geladen werden", body: "Prüfe deine Verbindung. Sobald sie zurück ist, versuchen wir es erneut." },
     none: { title: "Keine Haltestellen im Umkreis von 700 m", body: "Suche nach einem Stationsnamen oder deiner Linie." },
   },
