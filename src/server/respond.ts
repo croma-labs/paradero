@@ -6,6 +6,10 @@ export function validId(value: string | undefined): value is string {
   return !!value && ID.test(value);
 }
 
+export const inBogota = (lat: number, lon: number) => lat > 3.5 && lat < 5.5 && lon > -75 && lon < -73;
+
+export const validQuery = (q: string) => q.length >= 2 && q.length <= 80;
+
 export function bad(message: string): Response {
   return Response.json({ error: { code: "bad_request", message } }, { status: 400 });
 }
