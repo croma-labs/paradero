@@ -13,6 +13,13 @@ export type System = (typeof SYSTEMS)[number];
 
 export type Basis = "predicted" | "estimated" | "scheduled";
 
+/** Size derived from an exact plate match in the published fleet register, not live occupancy. */
+export interface VehicleSize {
+  size: "small" | "large";
+  /** Month of the source register, YYYY-MM. */
+  asOf: string;
+}
+
 export interface Feed {
   asOf: string;
   live: boolean;
@@ -52,6 +59,8 @@ export interface Arrival {
   vehicle: string | null;
   /** The bus's plate, to find it on the map. Absent from servers before 0.0.5. */
   plate?: string | null;
+  /** Absent from older servers; null when the vehicle is not in the fleet register. */
+  vehicleSize?: VehicleSize | null;
 }
 
 export interface Alert {
@@ -75,6 +84,7 @@ export interface Bus {
   nextStop: string | null;
   plate: string | null;
   reportedAt: string | null;
+  vehicleSize?: VehicleSize | null;
 }
 
 export interface IncomingBus extends Bus {

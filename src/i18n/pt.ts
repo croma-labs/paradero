@@ -25,6 +25,12 @@ export const pt: Messages = {
     early: (m) => `${m} min adiantado`,
   },
 
+  vehicleSize: {
+    small: "Ônibus pequeno",
+    large: "Ônibus grande",
+    recorded: (label, date) => `${label} · registro de ${date}`,
+  },
+
   speech: {
     route: (code) => `Linha ${code}`,
     or: " ou ",

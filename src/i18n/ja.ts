@@ -25,6 +25,12 @@ export const ja: Messages = {
     early: (m) => `${m}分早着`,
   },
 
+  vehicleSize: {
+    small: "小型バス",
+    large: "大型バス",
+    recorded: (label, date) => `${label} · ${date}時点の登録情報`,
+  },
+
   speech: {
     route: (code) => `${code}系統`,
     or: "または",

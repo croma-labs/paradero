@@ -25,6 +25,12 @@ export const de: Messages = {
     early: (m) => `${m} Min. früher`,
   },
 
+  vehicleSize: {
+    small: "Kleiner Bus",
+    large: "Großer Bus",
+    recorded: (label, date) => `${label} · Datenstand ${date}`,
+  },
+
   speech: {
     route: (code) => `Linie ${code}`,
     or: " oder ",

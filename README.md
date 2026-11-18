@@ -117,6 +117,8 @@ Las fuentes Geist, Geist Mono y Victor Mono vienen con la [SIL Open Font License
 
 Los datos de transporte son de TransMilenio S.A. Los mapas son de [CARTO](https://carto.com/attributions) y © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright). Las fotos del onboarding son imágenes generadas con IA, no personas reales.
 
+El extracto de flota usado para mostrar el tamaño del bus proviene de **Flota Vinculada del SITP**, publicado por TRANSMILENIO S.A. en Datos Abiertos Bogotá bajo **CC BY 4.0**. Corresponde a diciembre de 2024; se agrupan placas por tipología y se conserva su atribución. [Fuente, clasificación y límites de vigencia](docs/BUS_SIZE.md).
+
 ---
 
 **In English.** Paradero is a free, open-source app for getting around Bogotá: live arrivals per stop, the buses heading to your stop, route search that reads codes the way riders do, saved stops and plain-language service alerts. It is part of Croma's Digital Public Goods series, built to meet the Digital Public Goods Standard, and offered at no cost to the City of Bogotá and TransMilenio to adopt and maintain. MIT licensed.

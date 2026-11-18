@@ -25,6 +25,12 @@ export const zh: Messages = {
     early: (m) => `提前 ${m} 分钟`,
   },
 
+  vehicleSize: {
+    small: "小型公交车",
+    large: "大型公交车",
+    recorded: (label, date) => `${label} · ${date}的记录`,
+  },
+
   speech: {
     route: (code) => `${code} 路`,
     or: "或",

@@ -58,7 +58,7 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "lint:tokens": "node scripts/check-tokens.mjs",
-    "check": "tsc --noEmit && eslint src --max-warnings 0 && node scripts/check-tokens.mjs && node --no-warnings scripts/check-contrast.ts && node scripts/check-strings.mjs",
+    "check": "tsc --noEmit && eslint src --max-warnings 0 && node scripts/check-tokens.mjs && node --no-warnings scripts/check-contrast.ts && node scripts/check-strings.mjs && node --no-warnings scripts/check-fleet.mjs",
     "deploy:api": "scripts/deploy-api.sh",
     "lint:strings": "node scripts/check-strings.mjs",
     "lint:contrast": "node --no-warnings scripts/check-contrast.ts",

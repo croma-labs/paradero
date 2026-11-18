@@ -27,6 +27,12 @@ export const es = {
     early: (m: number) => `${m} min antes`,
   },
 
+  vehicleSize: {
+    small: "Bus pequeño",
+    large: "Bus grande",
+    recorded: (label: string, date: string) => `${label} · registro de ${date}`,
+  },
+
   speech: {
     route: (code: string) => `Ruta ${code}`,
     or: " o ",

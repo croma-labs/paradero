@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 
 import { useT } from "@/i18n";
 import { useLargeText } from "@/lib/accessibility";
-import { clock, spokenArrival } from "@/lib/format";
+import { arrivalVehicleSize, clock, spokenArrival } from "@/lib/format";
 import { usePalette } from "@/theme/colors";
 import { radius, size, space } from "@/theme/tokens";
 import type { Arrival } from "@/transit/types";
@@ -19,6 +19,7 @@ export function NextBus({ arrival, following = false, onPress }: { arrival: Arri
   const large = useLargeText();
   const t = useT();
   const at = arrival.at ? clock(arrival.at) : null;
+  const vehicleSize = arrivalVehicleSize(arrival);
   return (
     <PressableScale
       accessible
@@ -45,6 +46,7 @@ export function NextBus({ arrival, following = false, onPress }: { arrival: Arri
           <Text variant="title" numberOfLines={large ? undefined : 2}>
             {arrival.name}
           </Text>
+          {vehicleSize && <Text variant="caption" tone="muted">{vehicleSize}</Text>}
           <Pace arrival={arrival} />
         </View>
         <Minutes value={arrival.minutes} size="lg" />
