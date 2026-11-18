@@ -110,7 +110,7 @@ export const fr: Messages = {
     failed: { title: "Impossible de charger cet arrêt", body: "Vérifiez votre connexion. Si le problème persiste, TransMilenio ne répond peut-être pas." },
     all: "Toutes",
     allLabel: "Toutes les lignes",
-    only: (code) => `Seulement la ligne ${code}`,
+    show: (code) => `Afficher la ligne ${code}`,
     none: { title: "Aucun bus à venir", body: "Le service de ces lignes est peut-être terminé pour aujourd’hui. Consultez les horaires de chaque ligne ci-dessous." },
     nextBus: "Prochain bus",
     later: "Plus tard",

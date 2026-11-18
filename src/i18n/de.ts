@@ -110,7 +110,7 @@ export const de: Messages = {
     failed: { title: "Diese Haltestelle konnte nicht geladen werden", body: "Prüfe deine Verbindung. Wenn es weiter fehlschlägt, antwortet TransMilenio vielleicht nicht." },
     all: "Alle",
     allLabel: "Alle Linien",
-    only: (code) => `Nur Linie ${code}`,
+    show: (code) => `Linie ${code} anzeigen`,
     none: { title: "Keine Busse in Sicht", body: "Der Betrieb dieser Linien ist für heute vielleicht beendet. Die Fahrzeiten jeder Linie stehen unten." },
     nextBus: "Nächster Bus",
     later: "Später",

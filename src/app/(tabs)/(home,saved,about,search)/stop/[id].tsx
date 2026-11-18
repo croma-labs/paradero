@@ -32,6 +32,7 @@ import { usePalette } from "@/theme/colors";
 import { layout, radius, size, space } from "@/theme/tokens";
 import { wayTowards } from "@/transit/follow";
 import { metresBetween } from "@/transit/path";
+import { activeRoutes, isShown, toggleRoute } from "@/transit/route-filter";
 import type { Arrival } from "@/transit/types";
 
 /** A rider this close to the stop is kept in the frame with the bus, to judge the walk against the wait. Further away, the map would zoom out too far to read. */
@@ -50,10 +51,13 @@ export default function StopScreen() {
   const [early] = useState(() => knownStop(id));
   const stop = data?.stop ?? early;
   const saved = useIsSaved("stop", id);
-  const [only, setOnly] = useState<string | null>(null);
+  // Routes the rider chose to see; empty means all of them.
+  const [only, setOnly] = useState<string[]>([]);
 
   const codes = useMemo(() => [...new Set((data?.arrivals ?? []).map((a) => a.code))], [data]);
-  const arrivals = (data?.arrivals ?? []).filter((a) => !only || a.code === only);
+  const active = activeRoutes(only, codes);
+  const shown = (code: string) => isShown(active, code);
+  const arrivals = (data?.arrivals ?? []).filter((a) => shown(a.code));
   const [next, ...later] = arrivals;
 
   // The bus the map follows: the next one, until the rider picks another.
@@ -64,7 +68,7 @@ export default function StopScreen() {
   const focus = live && followed?.plate ? (route?.buses.find((b) => b.plate === followed.plate) ?? null) : null;
   const way = useMemo(() => (route && stop ? wayTowards(route.patterns ?? [{ path: route.path }], stop, focus) : undefined), [route, stop, focus]);
   const mapBuses =
-    route && live && followed ? route.buses.map((b) => ({ ...b, code: followed.code, system: followed.system })) : data?.feed.live ? data.incoming.filter((b) => !only || b.code === only) : [];
+    route && live && followed ? route.buses.map((b) => ({ ...b, code: followed.code, system: followed.system })) : data?.feed.live ? data.incoming.filter((b) => shown(b.code)) : [];
 
   const map = useRef<MapHandle>(null);
   // The map frames the stop, the bus and the rider when it starts following a bus: on arriving, when the rider picks one, and when the one
@@ -146,22 +150,22 @@ export default function StopScreen() {
           <>
             {codes.length > 1 && (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters} style={styles.bleed}>
-                <Chip label={t.stop.all} accessibilityLabel={`${t.stop.all}, ${t.stop.allLabel}`} selected={!only} onPress={() => setOnly(null)} />
+                <Chip label={t.stop.all} accessibilityLabel={`${t.stop.all}, ${t.stop.allLabel}`} selected={!active.length} onPress={() => setOnly([])} />
                 {codes.map((c) => {
                   const a = data.arrivals.find((x) => x.code === c)!;
-                  const on = only === c;
+                  const on = active.includes(c);
                   return (
                     <PressableScale
                       key={c}
                       accessibilityRole="button"
-                      accessibilityLabel={`${c}, ${t.stop.only(spokenCode(c))}`}
+                      accessibilityLabel={`${c}, ${t.stop.show(spokenCode(c))}`}
                       accessibilityState={{ selected: on }}
                       hitSlop={space[1]}
                       onPress={() => {
                         void Haptics.selectionAsync();
-                        setOnly(on ? null : c);
+                        setOnly(toggleRoute(active, c, codes));
                       }}
-                      style={[styles.chip, { borderColor: on ? p.ink : only ? p.separator : "transparent" }]}>
+                      style={[styles.chip, { borderColor: on ? p.ink : active.length ? p.separator : "transparent" }]}>
                       <RouteBadge code={c} system={a.system} />
                     </PressableScale>
                   );
