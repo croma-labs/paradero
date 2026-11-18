@@ -44,6 +44,7 @@ Docs: https://docs.expo.dev/eas/index.md
 ## Paradero conventions
 
 - Paradero is a public digital good by Croma for Bogotá riders. Every screen is in plain words, written the way a neighbour would say it.
+- Vocabulary: `GLOSSARY.md` holds one term per domain concept. Read it before naming a concept in code, copy, tests, issues or PRs, and use that term. Each entry's _Spanish_ line maps what a developer or rider says in Spanish to the term. When a concept has no entry, name the gap rather than coining a word.
 - Languages: Spanish (source), English, Portuguese, French, German, Simplified Chinese and Japanese. Every word on screen comes from `src/i18n` through `useT()` (or `t()` in helpers); add the Spanish key in `es.ts` first, and TypeScript then fails until every language has it. `npm run check` also fails on text typed straight into a screen. Stop, station and route names, and TransMilenio's own notes, are never translated. The iOS permission prompt lives in `locales/*.json`.
 - Data honesty is a feature: every time shown says whether it is live or from the published timetable (`Feed.live`, `Arrival.basis`). Never draw stale bus positions as current.
 - Accessibility is not optional: every pressable has `accessibilityRole` and a full spoken `accessibilityLabel` that starts with the visible words (Voice Control matches on them); rows read as one sentence; no truncation or fixed text heights when `useLargeText()` is on; motion and the map camera honor Reduce Motion; loading, errors and results are announced.
