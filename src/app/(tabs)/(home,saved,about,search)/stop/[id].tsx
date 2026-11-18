@@ -173,7 +173,7 @@ export default function StopScreen() {
 
             {/* Each live arrival already says so; the notice is for when times fall back to the timetable. */}
             {!data.feed.live && <FeedStatus feed={data.feed} />}
-            <AlertCard alerts={data.alerts} />
+            <AlertCard alerts={data.alerts} routes={data.stop.routes} />
 
             {later.length > 0 && (
               <View>

@@ -105,7 +105,7 @@ export default function RouteScreen() {
               </Text>
             </View>
 
-            <AlertCard alerts={data.alerts} />
+            <AlertCard alerts={data.alerts} routes={[data.route]} />
 
             <View>
               <Text variant="title" style={styles.heading}>
