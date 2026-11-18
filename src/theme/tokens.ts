@@ -17,14 +17,12 @@ export const size = {
 export const layout = {
   gutter: space[4],
   tabBarClearance: 120,
-  sheetOverlap: 28,
   cardWidth: 228,
   readable: 320,
   shadowBleed: space[6],
   screenEnd: 80,
   badgeColumn: 116,
   mapInset: { top: 96, right: space[6], bottom: space[10], left: space[6] },
-  sheetMap: 0.38,
 } as const;
 
 export const fonts = {
