@@ -1,8 +1,10 @@
-import { focusManager, keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
+import { focusManager, keepPreviousData, QueryClient, useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { useFocusEffect, useIsFocused } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppState, Platform } from "react-native";
 
 import type { ReportInput, ReportResult } from "@/transit/report";
-import type { Health, Nearby, RouteDetail, SearchResult, Stop, StopDetail } from "@/transit/types";
+import type { Feed, Health, Nearby, RouteDetail, SearchResult, Stop, StopDetail } from "@/transit/types";
 
 export class ApiError extends Error {
   constructor(
@@ -86,12 +88,51 @@ export function knownStop(id: string | undefined): Stop | undefined {
   return undefined;
 }
 
+/**
+ * How long an answer may go without a newer one and still be called live here. The server's verdict holds for the moment it was
+ * given: offline or in a tunnel no newer answer comes, and "2 min" must not keep its live signal while the bus may have long gone.
+ */
+const QUIET_MS = 30_000;
+
+/**
+ * Says live only while answers keep arriving. Every screen reads `feed.live`, so correcting it here is enough for all of them: the
+ * map stops drawing buses, the counts show "–" and the notice says since when there is no live data.
+ */
+function useLiveFeed<T extends { feed: Feed }>(query: UseQueryResult<T, Error>, focused: boolean): UseQueryResult<T, Error> {
+  const { data, dataUpdatedAt, refetch } = query;
+  const [now, setNow] = useState(Date.now);
+  const [shownAt, setShownAt] = useState(Date.now);
+
+  // Back in view after a while: the wait for news starts again and the answer is asked for at once, not on the next tick.
+  const first = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      setShownAt(Date.now());
+      if (first.current) first.current = false;
+      else void refetch();
+    }, [refetch]),
+  );
+
+  useEffect(() => {
+    if (!focused || !data) return;
+    const tick = setInterval(() => setNow(Date.now()), LIVE);
+    return () => clearInterval(tick);
+  }, [focused, data]);
+
+  const live = !!data?.feed.live && now - Math.max(dataUpdatedAt, shownAt) <= QUIET_MS;
+  const shown = useMemo(() => (data && data.feed.live !== live ? { ...data, feed: { ...data.feed, live } } : data), [data, live]);
+  return shown === data ? query : ({ ...query, data: shown } as UseQueryResult<T, Error>);
+}
+
+// Only the screen in view asks every few seconds. Screens under it in the stack, and tabs left behind, wait until they are shown again.
 export function useStop(id: string | undefined) {
-  return useQuery({ ...stopQuery(id ?? ""), enabled: !!id, refetchInterval: LIVE });
+  const focused = useIsFocused();
+  return useLiveFeed(useQuery({ ...stopQuery(id ?? ""), enabled: !!id, refetchInterval: focused ? LIVE : false }), focused);
 }
 
 export function useRoute(id: string | undefined) {
-  return useQuery({ ...routeQuery(id ?? ""), enabled: !!id, refetchInterval: LIVE });
+  const focused = useIsFocused();
+  return useLiveFeed(useQuery({ ...routeQuery(id ?? ""), enabled: !!id, refetchInterval: focused ? LIVE : false }), focused);
 }
 
 export async function sendReport(input: ReportInput): Promise<ReportResult> {
