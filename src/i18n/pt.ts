@@ -110,7 +110,7 @@ export const pt: Messages = {
     failed: { title: "Não conseguimos carregar este ponto", body: "Verifique sua conexão. Se continuar falhando, a TransMilenio pode não estar respondendo." },
     all: "Todas",
     allLabel: "Todas as linhas",
-    only: (code) => `Só a linha ${code}`,
+    show: (code) => `Mostrar a linha ${code}`,
     none: { title: "Nenhum ônibus a caminho", body: "O serviço destas linhas pode ter terminado por hoje. Veja o horário de cada linha abaixo." },
     nextBus: "Próximo ônibus",
     later: "Mais tarde",

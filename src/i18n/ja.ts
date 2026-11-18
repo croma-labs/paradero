@@ -110,7 +110,7 @@ export const ja: Messages = {
     failed: { title: "この停留所を読み込めませんでした", body: "接続を確認してください。失敗が続く場合、TransMilenioが応答していない可能性があります。" },
     all: "すべて",
     allLabel: "すべての路線",
-    only: (code) => `${code}のみ`,
+    show: (code) => `${code}を表示`,
     none: { title: "まもなく来るバスはありません", body: "本日の運行は終了した可能性があります。下で各路線の運行時間を確認できます。" },
     nextBus: "次のバス",
     later: "このあと",

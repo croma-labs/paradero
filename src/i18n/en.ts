@@ -110,7 +110,7 @@ export const en: Messages = {
     failed: { title: "We couldn't load this stop", body: "Check your connection. If it keeps failing, TransMilenio may not be responding." },
     all: "All",
     allLabel: "All routes",
-    only: (code) => `Only route ${code}`,
+    show: (code) => `Show route ${code}`,
     none: { title: "No buses coming", body: "Service on these routes may have ended for today. Check each route's hours below." },
     nextBus: "Next bus",
     later: "Later",

@@ -110,7 +110,7 @@ export const zh: Messages = {
     failed: { title: "无法加载此站点", body: "请检查网络连接。如果仍然失败，可能是 TransMilenio 没有响应。" },
     all: "全部",
     allLabel: "全部线路",
-    only: (code) => `只看 ${code} 路`,
+    show: (code) => `显示 ${code} 路`,
     none: { title: "暂无即将到站的车", body: "这些线路今天可能已经收班。可以在下方查看每条线路的运营时间。" },
     nextBus: "下一班车",
     later: "稍后",

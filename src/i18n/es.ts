@@ -113,7 +113,7 @@ export const es = {
     failed: { title: "No pudimos cargar este paradero", body: "Revisa tu conexión. Si sigue fallando, puede que TransMilenio no esté respondiendo." },
     all: "Todas",
     allLabel: "Todas las rutas",
-    only: (code: string) => `Solo la ruta ${code}`,
+    show: (code: string) => `Mostrar la ruta ${code}`,
     none: { title: "No hay buses próximos", body: "Puede que el servicio de estas rutas haya terminado por hoy. Mira el horario de cada ruta abajo." },
     nextBus: "Próximo bus",
     later: "Más tarde",
