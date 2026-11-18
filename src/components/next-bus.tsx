@@ -14,7 +14,7 @@ import { RouteBadge } from "./route-badge";
 import { Text } from "./text";
 
 /** The one answer most riders open the app for, set large and quiet. */
-export function NextBus({ arrival, following = false, onPress }: { arrival: Arrival; following?: boolean; onPress?: () => void }) {
+export function NextBus({ arrival, following = false, feedLive = true, onPress }: { arrival: Arrival; following?: boolean; feedLive?: boolean; onPress?: () => void }) {
   const p = usePalette();
   const large = useLargeText();
   const t = useT();
@@ -45,9 +45,9 @@ export function NextBus({ arrival, following = false, onPress }: { arrival: Arri
           <Text variant="title" numberOfLines={large ? undefined : 2}>
             {arrival.name}
           </Text>
-          <Pace arrival={arrival} />
+          <Pace arrival={arrival} feedLive={feedLive} />
         </View>
-        <Minutes value={arrival.minutes} size="lg" />
+        <Minutes value={arrival.minutes} size="lg" live={feedLive && arrival.basis !== "scheduled"} />
       </View>
     </PressableScale>
   );

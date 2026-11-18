@@ -15,9 +15,10 @@ import { Minutes } from "./minutes";
 import { RouteBadge } from "./route-badge";
 import { Text } from "./text";
 
-export function Pace({ arrival }: { arrival: Arrival }) {
+/** `feedLive` is the stop's own verdict: when the feed has gone quiet, no row may still wear the live green. */
+export function Pace({ arrival, feedLive = true }: { arrival: Arrival; feedLive?: boolean }) {
   const pace = punctuality(arrival);
-  const color = pace.tone === "late" ? signal.late : pace.tone === "live" ? signal.live : null;
+  const color = pace.tone === "late" ? signal.late : pace.tone === "live" && feedLive ? signal.live : null;
   return (
     <View style={styles.pace}>
       {color && <Dot color={color} size="sm" />}
@@ -28,7 +29,22 @@ export function Pace({ arrival }: { arrival: Arrival }) {
   );
 }
 
-export function ArrivalRow({ arrival, first, index = 0, following = false, onPress }: { arrival: Arrival; first?: boolean; index?: number; following?: boolean; onPress?: () => void }) {
+export function ArrivalRow({
+  arrival,
+  first,
+  index = 0,
+  following = false,
+  feedLive = true,
+  onPress,
+}: {
+  arrival: Arrival;
+  first?: boolean;
+  index?: number;
+  following?: boolean;
+  feedLive?: boolean;
+  onPress?: () => void;
+}) {
+  const live = feedLive && arrival.basis !== "scheduled";
   const p = usePalette();
   const t = useT();
   const large = useLargeText();
@@ -50,11 +66,11 @@ export function ArrivalRow({ arrival, first, index = 0, following = false, onPre
           <Text variant="headline" weight={500} numberOfLines={large ? undefined : 1}>
             {arrival.name}
           </Text>
-          {!plain && <Pace arrival={arrival} />}
+          {!plain && <Pace arrival={arrival} feedLive={feedLive} />}
         </View>
         <View style={styles.when}>
-          {plain && arrival.minutes != null && arrival.minutes > 0 && <Dot color={signal.live} size="sm" />}
-          <Minutes value={arrival.minutes} />
+          {plain && live && arrival.minutes != null && arrival.minutes > 0 && <Dot color={signal.live} size="sm" />}
+          <Minutes value={arrival.minutes} live={live} />
         </View>
       </PressableScale>
     </Animated.View>

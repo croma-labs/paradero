@@ -19,12 +19,15 @@ import { Text } from "./text";
 /** A saved stop with its next buses, so the answer is on screen before the rider taps anything. */
 export function SavedStopCard({ saved, width }: { saved: SavedStop; width?: number }) {
   const p = usePalette();
-  const { data, isLoading } = useStop(saved.id);
+  const { data, isLoading, isError } = useStop(saved.id);
   const next = data?.arrivals.slice(0, 2) ?? [];
   const t = useT();
   const large = useLargeText();
   const title = saved.nickname ?? saved.name;
-  const lines = isLoading ? [t.speech.loading] : next.length === 0 ? [t.stop.noBuses] : next.map((a) => t.speech.savedLine(t.speech.route(spokenCode(a.code)), spokenWhen(a.minutes)));
+  // A failed request is not an empty stop: saying "no buses" would send a rider away from a bus that is coming.
+  const failed = isError && !data;
+  const empty = failed ? t.stop.failed.title : t.stop.noBuses;
+  const lines = isLoading ? [t.speech.loading] : next.length === 0 ? [empty] : next.map((a) => t.speech.savedLine(t.speech.route(spokenCode(a.code)), spokenWhen(a.minutes)));
 
   return (
     <PressableScale
@@ -49,13 +52,13 @@ export function SavedStopCard({ saved, width }: { saved: SavedStop; width?: numb
         {isLoading && [0, 1].map((i) => <Bone key={i} width={i === 0 ? "60%" : "75%"} height={size.icon.md} />)}
         {!isLoading && next.length === 0 && (
           <Text variant="caption" tone="muted">
-            {t.stop.noBuses}
+            {empty}
           </Text>
         )}
         {next.map((a, i) => (
           <View key={`${a.code}-${i}`} style={styles.line}>
             <RouteBadge code={a.code} system={a.system} size="sm" />
-            <Minutes value={a.minutes} size="sm" />
+            <Minutes value={a.minutes} size="sm" live={!!data?.feed.live && a.basis !== "scheduled"} />
           </View>
         ))}
       </View>

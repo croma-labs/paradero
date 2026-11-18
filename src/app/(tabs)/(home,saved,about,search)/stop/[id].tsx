@@ -41,6 +41,20 @@ const FRAME_REST_MS = 20_000;
 
 const keyOf = (a: Arrival) => `${a.routeId ?? a.code}-${a.plate ?? a.vehicle ?? a.at}`;
 
+/**
+ * Keys that survive a refresh: the predicted time moves every report, so keying on it remounted each row every few seconds,
+ * replaying its entrance and dropping the screen reader's place. A repeat (the same bus twice on a loop) gets a counter.
+ */
+function withKeys(list: Arrival[]): { a: Arrival; key: string }[] {
+  const seen = new Map<string, number>();
+  return list.map((a) => {
+    const base = keyOf(a);
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return { a, key: n ? `${base}-${n}` : base };
+  });
+}
+
 export default function StopScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const p = usePalette();
@@ -53,7 +67,12 @@ export default function StopScreen() {
   const [only, setOnly] = useState<string | null>(null);
 
   const codes = useMemo(() => [...new Set((data?.arrivals ?? []).map((a) => a.code))], [data]);
-  const arrivals = (data?.arrivals ?? []).filter((a) => !only || a.code === only);
+  // Once the last bus of the chosen route has passed, the filter lets go: otherwise the stop reads "no buses" with the chips hidden and no way back.
+  // It lets go for good, so a later bus of that route does not narrow the list again without a tap. Adjusting state while rendering is
+  // React's own pattern for this: the screen re-renders once, before anything is shown.
+  if (only && data && !codes.includes(only)) setOnly(null);
+  const active = only && codes.includes(only) ? only : null;
+  const arrivals = (data?.arrivals ?? []).filter((a) => !active || a.code === active);
   const [next, ...later] = arrivals;
 
   // The bus the map follows: the next one, until the rider picks another.
@@ -64,7 +83,7 @@ export default function StopScreen() {
   const focus = live && followed?.plate ? (route?.buses.find((b) => b.plate === followed.plate) ?? null) : null;
   const way = useMemo(() => (route && stop ? wayTowards(route.patterns ?? [{ path: route.path }], stop, focus) : undefined), [route, stop, focus]);
   const mapBuses =
-    route && live && followed ? route.buses.map((b) => ({ ...b, code: followed.code, system: followed.system })) : data?.feed.live ? data.incoming.filter((b) => !only || b.code === only) : [];
+    route && live && followed ? route.buses.map((b) => ({ ...b, code: followed.code, system: followed.system })) : data?.feed.live ? data.incoming.filter((b) => !active || b.code === active) : [];
 
   const map = useRef<MapHandle>(null);
   // The map frames the stop, the bus and the rider when it starts following a bus: on arriving, when the rider picks one, and when the one
@@ -146,10 +165,10 @@ export default function StopScreen() {
           <>
             {codes.length > 1 && (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters} style={styles.bleed}>
-                <Chip label={t.stop.all} accessibilityLabel={`${t.stop.all}, ${t.stop.allLabel}`} selected={!only} onPress={() => setOnly(null)} />
+                <Chip label={t.stop.all} accessibilityLabel={`${t.stop.all}, ${t.stop.allLabel}`} selected={!active} onPress={() => setOnly(null)} />
                 {codes.map((c) => {
                   const a = data.arrivals.find((x) => x.code === c)!;
-                  const on = only === c;
+                  const on = active === c;
                   return (
                     <PressableScale
                       key={c}
@@ -161,7 +180,7 @@ export default function StopScreen() {
                         void Haptics.selectionAsync();
                         setOnly(on ? null : c);
                       }}
-                      style={[styles.chip, { borderColor: on ? p.ink : only ? p.separator : "transparent" }]}>
+                      style={[styles.chip, { borderColor: on ? p.ink : active ? p.separator : "transparent" }]}>
                       <RouteBadge code={c} system={a.system} />
                     </PressableScale>
                   );
@@ -169,7 +188,7 @@ export default function StopScreen() {
               </ScrollView>
             )}
 
-            {next ? <NextBus arrival={next} following={!!focus && followed === next} onPress={() => follow(next)} /> : <Empty title={t.stop.none.title} body={t.stop.none.body} />}
+            {next ? <NextBus arrival={next} following={!!focus && followed === next} feedLive={data.feed.live} onPress={() => follow(next)} /> : <Empty title={t.stop.none.title} body={t.stop.none.body} />}
 
             {/* Each live arrival already says so; the notice is for when times fall back to the timetable. */}
             {!data.feed.live && <FeedStatus feed={data.feed} />}
@@ -180,8 +199,8 @@ export default function StopScreen() {
                 <Text variant="title" style={styles.heading}>
                   {t.stop.later}
                 </Text>
-                {later.slice(0, 10).map((a, i) => (
-                  <ArrivalRow key={`${a.code}-${a.at}-${i}`} arrival={a} first={i === 0} index={i} following={!!focus && followed === a} onPress={() => follow(a)} />
+                {withKeys(later.slice(0, 10)).map(({ a, key }, i) => (
+                  <ArrivalRow key={key} arrival={a} first={i === 0} index={i} following={!!focus && followed === a} feedLive={data.feed.live} onPress={() => follow(a)} />
                 ))}
               </View>
             )}

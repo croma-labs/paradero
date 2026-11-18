@@ -122,6 +122,18 @@ export async function stopDetail(stopId: string): Promise<StopDetail | null> {
   };
 }
 
+/**
+ * How old a bus's last position may be and still be drawn. A bus that stopped reporting (parked, broken down, GPS off) would
+ * otherwise sit on the map and in the count as if it were on its way. Positions with no time are kept: the feed's own `as_of` vouches for them.
+ */
+const FRESH_FIX_MS = 3 * 60_000;
+
+function freshFix(v: { reported_at?: string | null }, now = Date.now()): boolean {
+  if (!v.reported_at) return true;
+  const at = Date.parse(v.reported_at);
+  return Number.isNaN(at) || now - at <= FRESH_FIX_MS;
+}
+
 /** Buses within ~3 km on a route that serves this stop: the "which one comes first" view riders asked for. */
 async function incomingTo(stop: Stop, routeIds: string[]): Promise<IncomingBus[]> {
   const serving = new Set(routeIds);
@@ -129,7 +141,7 @@ async function incomingTo(stop: Stop, routeIds: string[]): Promise<IncomingBus[]
     croma("vehicles", { latitude: stop.lat, longitude: stop.lon, radius_m: 3000, per_page: 300 }, s.vehicles),
   );
   return around.vehicles
-    .filter((v) => v.route_id && serving.has(v.route_id))
+    .filter((v) => v.route_id && serving.has(v.route_id) && freshFix(v))
     .slice(0, 40)
     .map((v) => {
       const route = describeRoute({ id: v.route_id ?? "", shortName: v.route_code ?? null, longName: v.route_name ?? null, system: v.system ?? null });
@@ -180,8 +192,9 @@ function busesOn(code: string) {
     const rest = await Promise.all(
       Array.from({ length: Math.min(first.total_pages, 4) - 1 }, (_, i) => croma("vehicles", { route: code, per_page: 200, page: i + 2 }, s.vehicles)),
     );
+    const now = Date.now();
     const buses = [first, ...rest].flatMap((page) =>
-      page.vehicles.map((v) => ({
+      page.vehicles.filter((v) => freshFix(v, now)).map((v) => ({
         id: v.vehicle_id ?? v.label ?? `${v.latitude},${v.longitude}`,
         lat: v.latitude,
         lon: v.longitude,

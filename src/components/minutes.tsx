@@ -22,8 +22,11 @@ const ROOM = 0.4;
 /** How far a glyph's baseline sits above the bottom of its line, as a share of the font size. */
 const DESCENT = 0.21;
 
-/** Minutes roll digit by digit as the bus gets closer, like a departures board. */
-export function Minutes({ value, size = "md" }: { value: number | null; size?: keyof typeof SIZES }) {
+/**
+ * Minutes roll digit by digit as the bus gets closer, like a departures board.
+ * `live` is false when the time comes from the published timetable: "arriving" then carries no live signal.
+ */
+export function Minutes({ value, size = "md", live = true }: { value: number | null; size?: keyof typeof SIZES; live?: boolean }) {
   const p = usePalette();
   const t = useT();
   const { fontScale } = useWindowDimensions();
@@ -39,7 +42,7 @@ export function Minutes({ value, size = "md" }: { value: number | null; size?: k
   if (value <= 0) {
     return (
       <View style={styles.now}>
-        <Dot color={signal.live} pulse />
+        {live && <Dot color={signal.live} pulse />}
         <Text variant="headline">{t.time.arriving}</Text>
       </View>
     );
