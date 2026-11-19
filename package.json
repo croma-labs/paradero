@@ -45,6 +45,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/react": "~19.3.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.4",
@@ -55,6 +56,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "dev:fake": "node --no-warnings devex/fake-croma/dev.ts",
+    "croma:fake": "node --no-warnings devex/fake-croma/server.ts",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "lint:tokens": "node scripts/check-tokens.mjs",

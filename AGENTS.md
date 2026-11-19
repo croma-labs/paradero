@@ -15,6 +15,7 @@ Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
 ```bash
 npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add: resolves SDK-compatible versions
 npx expo start              # start the dev server
+npm run dev:fake            # start it against a fake Croma whose stops, routes and buses you define: see devex/fake-croma
 npm run check               # typecheck + lint + design tokens + contrast + translations: run before every PR
 npm run deploy:api          # check, export, scan for leaked secrets, deploy the API to EAS Hosting
 npm run release:ios         # build for TestFlight; the GitHub release notes for this version become "What to Test"
@@ -48,7 +49,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - Data honesty is a feature: every time shown says whether it is live or from the published timetable (`Feed.live`, `Arrival.basis`). Never draw stale bus positions as current.
 - Accessibility is not optional: every pressable has `accessibilityRole` and a full spoken `accessibilityLabel` that starts with the visible words (Voice Control matches on them); rows read as one sentence; no truncation or fixed text heights when `useLargeText()` is on; motion and the map camera honor Reduce Motion; loading, errors and results are announced.
 - Privacy: no accounts, no analytics on location, coordinates are rounded to 3 decimals before leaving the phone (`src/lib/api.ts`).
-- Layout: `src/app` routes and `+api.ts` server routes, `src/server` talks to Croma (key only there), `src/transit` pure domain logic shared by both, `src/components` UI, `src/lib` client state.
+- Layout: `src/app` routes and `+api.ts` server routes, `src/server` talks to Croma (key only there), `src/transit` pure domain logic shared by both, `src/components` UI, `src/lib` client state, `devex` tools for developers and agents that never ship in the app.
 - Route codes: the feed joins paired SITP routes (`HK635` = K635 + H635). Use `describeRoute` in `src/transit/codes.ts`; `feedCode` is for API calls, `code`/`aliases` for anything a rider sees.
 - No code from paid templates (e.g. Code with Beto's platano): this repo is MIT and must stay redistributable.
 - Design system: read `docs/DESIGN.md` before touching UI. No raw numbers or colors in `src/app` or `src/components`; `npm run check` fails on them.

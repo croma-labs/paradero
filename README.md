@@ -70,6 +70,8 @@ cp .env.example .env.local   # pega tu CROMA_API_KEY, gratis en platform.usecrom
 npx expo run:ios             # o: npx expo run:android
 ```
 
+Sin llave de Croma, `npm run dev:fake -- run:ios` (o `run:android`) abre la app con datos de prueba que tú defines: paraderos, rutas y buses. Ver [`devex/fake-croma`](devex/fake-croma).
+
 El mapa usa código nativo, así que necesita un development build (no Expo Go). Antes de un PR: `npx tsc --noEmit` y `npx eslint src`.
 
 ## Cómo funciona

@@ -1,0 +1,46 @@
+{
+  "about": "A normal weekday around Calle 72 and Carrera 11: three stops nearby, buses on their way, one detour on the B10.",
+  "rider": {"lat": 4.659, "lon": -74.0598},
+  "feed": {"live": true, "ageSeconds": 5},
+  "stops": [
+    {"id": "TM063", "name": "Calle 63", "kind": "station", "lat": 4.6475, "lon": -74.0656, "accessible": true},
+    {"id": "TM072", "name": "Calle 72", "kind": "station", "lat": 4.6575, "lon": -74.0634, "accessible": true},
+    {"id": "TM076", "name": "Calle 76", "kind": "station", "lat": 4.6655, "lon": -74.0608, "accessible": true},
+    {"id": "TMHER", "name": "Héroes", "kind": "station", "lat": 4.6667, "lon": -74.059, "accessible": true},
+    {"id": "TM100", "name": "Calle 100 - Marketmedios", "kind": "station", "lat": 4.6849, "lon": -74.0565, "accessible": true},
+    {"id": "TMPNO", "name": "Portal Norte", "kind": "station", "lat": 4.7544, "lon": -74.0464, "accessible": true},
+    {"id": "ZN0603", "name": "Cl. 63 - Kr. 13", "kind": "stop", "lat": 4.6478, "lon": -74.064, "accessible": false},
+    {"id": "ZN0721", "name": "Cl. 72 - Kr. 11", "kind": "stop", "lat": 4.656, "lon": -74.059, "accessible": true},
+    {"id": "ZN0742", "name": "Av. Chile - Kr. 9", "kind": "stop", "lat": 4.6588, "lon": -74.057, "accessible": false},
+    {"id": "ZN0851", "name": "Cl. 85 - Kr. 11", "kind": "stop", "lat": 4.6688, "lon": -74.0525, "accessible": true}
+  ],
+  "routes": [
+    {"code": "B10", "id": "R-B10", "longName": "Portal Norte", "system": "troncal", "firstDeparture": "04:30:00", "lastDeparture": "23:00:00", "patterns": [{"tripsPerWeek": 840, "stops": ["TM063", "TM072", "TM076", "TMHER", "TM100", "TMPNO"]}, {"tripsPerWeek": 820, "stops": ["TMPNO", "TM100", "TMHER", "TM076", "TM072", "TM063"]}]},
+    {"code": "6", "id": "R-6", "longName": "Portal 80", "system": "troncal", "firstDeparture": "05:00:00", "lastDeparture": "22:00:00", "patterns": [{"tripsPerWeek": 610, "stops": ["TM063", "TM072", "TMHER"]}]},
+    {"code": "HK635", "id": "R-HK635", "longName": "K635 Montevideo || H635 Arborizadora Alta", "system": "zonal_urbano", "firstDeparture": "04:50:00", "lastDeparture": "21:30:00", "patterns": [{"tripsPerWeek": 420, "stops": ["ZN0603", "ZN0721", "ZN0742", "ZN0851"]}, {"tripsPerWeek": 400, "stops": ["ZN0851", "ZN0742", "ZN0721", "ZN0603"]}]}
+  ],
+  "arrivals": [
+    {"stop": "TM072", "route": "B10", "minutes": 2, "basis": "predicted", "delaySeconds": 60, "bus": "B10-7012"},
+    {"stop": "TM072", "route": "6", "minutes": 4, "basis": "predicted", "delaySeconds": -30, "bus": "6-7104"},
+    {"stop": "TM072", "route": "B10", "minutes": 9, "basis": "estimated", "delaySeconds": null, "bus": "B10-7031"},
+    {"stop": "TM072", "route": "6", "minutes": 15, "basis": "scheduled", "delaySeconds": null, "bus": null},
+    {"stop": "ZN0721", "route": "HK635", "minutes": 3, "basis": "predicted", "delaySeconds": 120, "bus": "Z10-2128"},
+    {"stop": "ZN0721", "route": "HK635", "minutes": 14, "basis": "scheduled", "delaySeconds": null, "bus": null},
+    {"stop": "ZN0742", "route": "HK635", "minutes": 5, "basis": "predicted", "delaySeconds": 0, "bus": "Z10-2128"},
+    {"stop": "ZN0742", "route": "HK635", "minutes": 11, "basis": "estimated", "delaySeconds": null, "bus": "Z10-2140"},
+    {"stop": "TMHER", "route": "B10", "minutes": 6, "basis": "predicted", "delaySeconds": 45, "bus": "B10-7012"},
+    {"stop": "TMHER", "route": "6", "minutes": 8, "basis": "estimated", "delaySeconds": null, "bus": "6-7104"}
+  ],
+  "buses": [
+    {"id": "B10-7012", "plate": "TMA-712", "route": "B10", "between": ["TM063", "TM072"], "at": 0.6},
+    {"id": "B10-7031", "plate": "TMA-731", "route": "B10", "between": ["TM063", "TM072"], "at": 0.1},
+    {"id": "B10-7055", "plate": "TMA-755", "route": "B10", "between": ["TM100", "TMPNO"], "at": 0.4},
+    {"id": "6-7104", "plate": "TMB-104", "route": "6", "between": ["TM063", "TM072"], "at": 0.3},
+    {"id": "6-7120", "plate": "TMB-120", "route": "6", "between": ["TM072", "TMHER"], "at": 0.7},
+    {"id": "Z10-2128", "plate": "WMK-128", "route": "HK635", "between": ["ZN0603", "ZN0721"], "at": 0.5},
+    {"id": "Z10-2140", "plate": "WMK-140", "route": "HK635", "between": ["ZN0603", "ZN0721"], "at": 0.1}
+  ],
+  "alerts": [
+    {"id": "ALERT-B10-1", "effect": "detour", "description": "DESVIO POR OBRAS\\063A00_Calle 63\\076A00_Calle 76", "routes": ["B10"], "hoursLeft": 2}
+  ]
+}
